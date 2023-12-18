@@ -12,6 +12,8 @@ setup(
         'numpy<=1.24.3,>=1.22',
         'ta-lib==0.4.25',
         'requests>=2.31.0',
-        'urllib3<2.0.0,>=1.25.8'
+        'urllib3<2.0.0,>=1.25.8',
+        'matplotlib',
+        'scikit-learn',
     ],
 )

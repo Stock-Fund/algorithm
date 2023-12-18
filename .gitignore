@@ -1,0 +1,3 @@
+./build/*
+./dist/*
+./algorithm.egg-info/*

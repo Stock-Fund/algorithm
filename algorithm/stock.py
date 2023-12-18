@@ -185,12 +185,12 @@ class Stock:
         # N日内成交量
         self.Volumes = data['Volume'].tolist()
         # 5日收盘价均价
-        self.MA5 = stock['Close'].rolling(window=5).mean() 
-        self.MA10 = stock['Close'].rolling(window=10).mean() 
-        self.MA20 = stock['Close'].rolling(window=20).mean() 
-        self.MA30 = stock['Close'].rolling(window=30).mean() 
-        self.MA40 = stock['Close'].rolling(window=40).mean() 
-        self.MA60 = stock['Close'].rolling(window=60).mean() 
+        self.MA5 = data['Close'].rolling(window=5).mean() 
+        self.MA10 = data['Close'].rolling(window=10).mean() 
+        self.MA20 = data['Close'].rolling(window=20).mean() 
+        self.MA30 = data['Close'].rolling(window=30).mean() 
+        self.MA40 = data['Close'].rolling(window=40).mean() 
+        self.MA60 = data['Close'].rolling(window=60).mean() 
         
         self.Time = datas[0]# 10点之前打到预测ma5直接买，下午就缓缓
         ## 所有的数组类数据全部为倒置存储，第0位就是当前天的数据
@@ -215,5 +215,5 @@ class Stock:
         # 止损卖出系数
         self.StopLoss = 0.97
         
-        self.Calculate5_predict(self,s=1.099)
+        self.Calculate5_predict(1.099)
    

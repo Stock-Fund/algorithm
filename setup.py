@@ -2,7 +2,7 @@ from setuptools import setup, find_packages
 
 setup(
     name='algorithm',
-    version='1.0',
+    version='1.0.1',
     description='Quantitative algorithm',
     author='akeboshi',
     author_email='akeboshi82@gmail.com',

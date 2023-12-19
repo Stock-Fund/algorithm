@@ -1,5 +1,12 @@
-# algorithm
-Quantitative algorithm
+# Quantitative algorithm
 量化算法
-fitting为拟合公式
-stock股票运行时数据，内部算法主要判断买卖点，观测点等
+## fitting为拟合公式
+## stock股票运行时数据，内部算法主要判断买卖点，观测点等
+- [x] 成交量判断逻辑
+- [x] 箱体算法
+- [x] 主升浪算法
+- [x] rsrs拟合算法
+- [x] 简单60日数据拟合算法
+- [x]  市场热度判断
+- [ ] 均线逻辑
+- [ ] 判断主力控盘逻辑

@@ -84,7 +84,16 @@ class Stock:
              return False
          else:
              return False
-         
+     
+     # 判断市场热度
+     def CheckMarketPopularity(self):
+         if self.turnoverRates >= 10:
+            return 1   
+         elif self.turnoverRates >= 1 and self.turnoverRates <= 5:
+            return 0
+         elif self.turnoverRates >= 0.1 and self.turnoverRates <= 1:
+            return -1
+             
      # 破位逻辑
      def checkBroken(self):
          closeValue = self.CloseValues[0]
@@ -131,6 +140,7 @@ class Stock:
              return True
          else:
              return False 
+         
      # 主升浪逻辑
      def MainSL(self):
          mainBoo = False

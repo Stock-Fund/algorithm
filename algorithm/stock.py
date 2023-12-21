@@ -134,8 +134,10 @@ class Stock:
      
      # 判断是否阳包阴，还是阴包阳
      def checkVolums(self):
-         today = self.Volumes[0]
-         yesterday = self.Volumes[1]
+         # 最后一位最新数据
+         count = len(self.Volumes)
+         today = self.Volumes[count-1]
+         yesterday = self.Volumes[count-2]
          if not self.checkRise(0) and yesterday < today:
              return True
          else:

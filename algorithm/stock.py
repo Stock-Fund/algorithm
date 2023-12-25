@@ -1,8 +1,6 @@
 import numpy as np
-import statistics
-import algorithm.fitting
-import talib
-import fitting
+import algorithm.fitting as fitting
+import talib as ta
 
 
 class Stock:
@@ -13,7 +11,7 @@ class Stock:
         return ma
 
     def CalculateAverage(self, num):
-        nums = self.CloseValues
+        # nums = self.CloseValues
         return self.moving_average(self.CloseValues, num)
 
     # 上一个交易日是否是跌势
@@ -204,17 +202,17 @@ class Stock:
 
     #  return self.CheckBuyValue(self)
 
-    def dealcustomData(data):
-        close_prices = data["Close"].tolist()
-        close_prices_array = np.array(close_prices, dtype=np.double)
+    def dealcustomData(self, data):
+        self.close_prices = data["Close"].tolist()
+        self.close_prices_array = np.array(self.close_prices, dtype=np.double)
         # 计算MACD
-        macd = talib.MACD(
-            close_prices_array, fastperiod=12, slowperiod=26, signalperiod=9
+        self.macd = ta.MACD(
+            self.close_prices_array, fastperiod=12, slowperiod=26, signalperiod=9
         )
         # N日简单移动平均数
-        ma5 = ta.SMA(close_prices_array, timeperiod=5)
-        ma10 = ta.SMA(close_prices_array, timeperiod=10)
-        ma30 = ta.SMA(close_prices_array, timeperiod=30)
+        self.ma5 = ta.SMA(self.close_prices_array, timeperiod=5)
+        self.ma10 = ta.SMA(self.close_prices_array, timeperiod=10)
+        self.ma30 = ta.SMA(self.close_prices_array, timeperiod=30)
 
     def __init__(self, data, datas):
         # N日内的收盘价格列表
@@ -234,7 +232,7 @@ class Stock:
         self.MA60 = data["Close"].rolling(window=60).mean()
 
         self.Time = datas[0]  # 10点之前打到预测ma5直接买，下午就缓缓
-        ## 所有的数组类数据全部为倒置存储，第0位就是当前天的数据
+        # 所有的数组类数据全部为倒置存储，第0位就是当前天的数据
         # 当前价格
         self.CurrentValue = datas[1]
 
@@ -257,6 +255,10 @@ class Stock:
         self.StopLoss = 0.97
 
         self.Calculate5_predict(1.099)
+
+    # 获取某个时间段内的均线值
+    def get_MA(self, time):
+        return ta.SMA(self.close_prices_array, timeperiod=time)
 
     @property
     def get_CurrentValue(self):

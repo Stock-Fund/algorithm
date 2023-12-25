@@ -1,3 +1,2 @@
-from algorithm import stock
-from algorithm import fitting
-from .fitting import *
+from algorithm.fitting import *
+from algorithm.stock import *

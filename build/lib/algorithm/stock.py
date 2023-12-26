@@ -209,10 +209,26 @@ class Stock:
         self.macd = ta.MACD(
             self.close_prices_array, fastperiod=12, slowperiod=26, signalperiod=9
         )
-        # N日简单移动平均数
-        self.ma5 = ta.SMA(self.close_prices_array, timeperiod=5)
-        self.ma10 = ta.SMA(self.close_prices_array, timeperiod=10)
-        self.ma30 = ta.SMA(self.close_prices_array, timeperiod=30)
+        self.MA5 = np.nan_to_num(ta.SMA(self.close_prices_array, timeperiod=5), nan=0)
+        self.MA10 = np.nan_to_num(ta.SMA(self.close_prices_array, timeperiod=10), nan=0)
+        self.MA20 = np.nan_to_num(ta.SMA(self.close_prices_array, timeperiod=20), nan=0)
+        self.MA30 = np.nan_to_num(ta.SMA(self.close_prices_array, timeperiod=30), nan=0)
+        self.MA40 = np.nan_to_num(ta.SMA(self.close_prices_array, timeperiod=40), nan=0)
+        self.MA60 = np.nan_to_num(ta.SMA(self.close_prices_array, timeperiod=60), nan=0)
+        return
+        mask5 = np.isnan(self.MA5)
+        mask10 = np.isnan(self.MA10)
+        mask20 = np.isnan(self.MA20)
+        mask30 = np.isnan(self.MA30)
+        mask40 = np.isnan(self.MA40)
+        mask60 = np.isnan(self.MA60)
+
+        self.MA5 = self.MA5[~mask5]
+        self.MA10 = self.MA10[~mask10]
+        self.MA20 = self.MA20[~mask20]
+        self.MA30 = self.MA30[~mask30]
+        self.MA40 = self.MA40[~mask40]
+        self.MA60 = self.MA60[~mask60]
 
     def __init__(self, data, datas):
         # N日内的收盘价格列表
@@ -223,16 +239,15 @@ class Stock:
         self.MinValues = data["Low"].tolist()
         # N日内成交量
         self.Volumes = data["Volume"].tolist()
-        # 5日收盘价均价
-        self.MA5 = data["Close"].rolling(window=5).mean()
-        self.MA10 = data["Close"].rolling(window=10).mean()
-        self.MA20 = data["Close"].rolling(window=20).mean()
-        self.MA30 = data["Close"].rolling(window=30).mean()
-        self.MA40 = data["Close"].rolling(window=40).mean()
-        self.MA60 = data["Close"].rolling(window=60).mean()
+
+        # self.MA5 = data["Close"].rolling(window=5).mean()
+        # self.MA10 = data["Close"].rolling(window=10).mean()
+        # self.MA20 = data["Close"].rolling(window=20).mean()
+        # self.MA30 = data["Close"].rolling(window=30).mean()
+        # self.MA40 = data["Close"].rolling(window=40).mean()
+        # self.MA60 = data["Close"].rolling(window=60).mean()
 
         self.Time = datas[0]  # 10点之前打到预测ma5直接买，下午就缓缓
-        # 所有的数组类数据全部为倒置存储，第0位就是当前天的数据
         # 当前价格
         self.CurrentValue = datas[1]
 
@@ -255,10 +270,31 @@ class Stock:
         self.StopLoss = 0.97
 
         self.Calculate5_predict(1.099)
+        self.dealcustomData(data)
 
     # 获取某个时间段内的均线值
     def get_MA(self, time):
         return ta.SMA(self.close_prices_array, timeperiod=time)
+
+    def get_MACD(self):
+        return ta.MACD(self.close_prices_array)
+
+    def get_slope(self, time):
+        if time == 5:
+            MANS = self.MA5
+        elif time == 10:
+            MANS = self.MA10
+        elif time == 20:
+            MANS = self.MA20
+        elif time == 30:
+            MANS = self.MA30
+        elif time == 40:
+            MANS = self.MA40
+        elif time == 60:
+            MANS = self.MA60
+        daylen = len(MANS) + 1
+        days = np.arange(1, daylen).reshape(-1, 1)
+        return fitting.simple_fit(days, MANS)
 
     @property
     def get_CurrentValue(self):

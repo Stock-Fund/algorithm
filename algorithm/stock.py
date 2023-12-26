@@ -156,8 +156,9 @@ class Stock:
     # 主升浪逻辑
     def MainSL(self):
         mainBoo = False
-        # 1-60作为x轴的数值
-        days = np.arange(1, 61).reshape(-1, 1)
+        # 1-N作为x轴的数值
+        closeDays = len(self.CloseValues) + 1
+        days = np.arange(1, closeDays).reshape(-1, 1)
         # 收盘价 趋势连续上涨。价格形成一系列超过坚振位的高点和低点,形成上扬趋势。
         slope = fitting.simple_fit(days, self.CloseValues)
         # 简单判断，当60日收盘价拟合斜率为正，表示60日收盘价处于上涨趋势，可以简单的算作主升浪情况
@@ -167,16 +168,24 @@ class Stock:
         mainBoo = True if slope > 0 else False
 
         # 均线上行。成交量均线、动量指标等有力指标呈现上升趋势MA(C,5)>MA(C,10) AND MA(C,10)>MA(C,20) AND MA(C,20)>MA(C,N) AND MA(C,N)>MA(C,120) AND MA(C,120)>REF(MA(C,120),1) AND MA(C,5)>REF(MA(C,5),1);
-        slopeMA5 = fitting.simple_fit(days, self.MA5s)
-        slopeMA10 = fitting.simple_fit(days, self.MA10s)
-        slopeMA20 = fitting.simple_fit(days, self.MA20s)
-        slopeMA60 = fitting.simple_fit(days, self.MA60s)
-        slopeMA120 = fitting.simple_fit(days, self.MA120s)
+        MA5Len = len(self.MA5s) + 1
+        slopeMA5 = fitting.simple_fit(MA5Len, self.MA5s)
+        MA10Len = len(self.MA10s) + 1
+        slopeMA10 = fitting.simple_fit(MA10Len, self.MA10s)
+        MA20Len = len(self.MA20s) + 1
+        slopeMA20 = fitting.simple_fit(MA20Len, self.MA20s)
+        MA30Len = len(self.MA30s) + 1
+        slopeMA30 = fitting.simple_fit(MA30Len, self.MA30s)
+        MA60Len = len(self.MA60s) + 1
+        slopeMA60 = fitting.simple_fit(MA60Len, self.MA60s)
+        MA120Len = len(self.MA120s) + 1
+        slopeMA120 = fitting.simple_fit(MA120Len, self.MA120s)
         mainBoo = (
             True
             if slopeMA5 > slopeMA10
             and slopeMA10 > slopeMA20
-            and slopeMA20 > slopeMA60
+            and slopeMA20 > slopeMA30
+            and slopeMA30 > slopeMA60
             and slopeMA60 > slopeMA120
             else False
         )
@@ -209,10 +218,14 @@ class Stock:
         self.macd = ta.MACD(
             self.close_prices_array, fastperiod=12, slowperiod=26, signalperiod=9
         )
-        # N日简单移动平均数
-        self.ma5 = ta.SMA(self.close_prices_array, timeperiod=5)
-        self.ma10 = ta.SMA(self.close_prices_array, timeperiod=10)
-        self.ma30 = ta.SMA(self.close_prices_array, timeperiod=30)
+
+        # 将数据中NAN替换为0，原因是不让数据的数量失真
+        self.MA5 = np.nan_to_num(ta.SMA(self.close_prices_array, timeperiod=5), nan=0)
+        self.MA10 = np.nan_to_num(ta.SMA(self.close_prices_array, timeperiod=10), nan=0)
+        self.MA20 = np.nan_to_num(ta.SMA(self.close_prices_array, timeperiod=20), nan=0)
+        self.MA30 = np.nan_to_num(ta.SMA(self.close_prices_array, timeperiod=30), nan=0)
+        self.MA40 = np.nan_to_num(ta.SMA(self.close_prices_array, timeperiod=40), nan=0)
+        self.MA60 = np.nan_to_num(ta.SMA(self.close_prices_array, timeperiod=60), nan=0)
 
     def __init__(self, data, datas):
         # N日内的收盘价格列表
@@ -223,16 +236,15 @@ class Stock:
         self.MinValues = data["Low"].tolist()
         # N日内成交量
         self.Volumes = data["Volume"].tolist()
-        # 5日收盘价均价
-        self.MA5 = data["Close"].rolling(window=5).mean()
-        self.MA10 = data["Close"].rolling(window=10).mean()
-        self.MA20 = data["Close"].rolling(window=20).mean()
-        self.MA30 = data["Close"].rolling(window=30).mean()
-        self.MA40 = data["Close"].rolling(window=40).mean()
-        self.MA60 = data["Close"].rolling(window=60).mean()
+
+        # self.MA5 = data["Close"].rolling(window=5).mean()
+        # self.MA10 = data["Close"].rolling(window=10).mean()
+        # self.MA20 = data["Close"].rolling(window=20).mean()
+        # self.MA30 = data["Close"].rolling(window=30).mean()
+        # self.MA40 = data["Close"].rolling(window=40).mean()
+        # self.MA60 = data["Close"].rolling(window=60).mean()
 
         self.Time = datas[0]  # 10点之前打到预测ma5直接买，下午就缓缓
-        # 所有的数组类数据全部为倒置存储，第0位就是当前天的数据
         # 当前价格
         self.CurrentValue = datas[1]
 
@@ -255,10 +267,31 @@ class Stock:
         self.StopLoss = 0.97
 
         self.Calculate5_predict(1.099)
+        self.dealcustomData(data)
 
     # 获取某个时间段内的均线值
     def get_MA(self, time):
         return ta.SMA(self.close_prices_array, timeperiod=time)
+
+    def get_MACD(self):
+        return ta.MACD(self.close_prices_array)
+
+    def get_slope(self, time):
+        if time == 5:
+            MANS = self.MA5
+        elif time == 10:
+            MANS = self.MA10
+        elif time == 20:
+            MANS = self.MA20
+        elif time == 30:
+            MANS = self.MA30
+        elif time == 40:
+            MANS = self.MA40
+        elif time == 60:
+            MANS = self.MA60
+        daylen = len(MANS) + 1
+        days = np.arange(1, daylen).reshape(-1, 1)
+        return fitting.simple_fit(days, MANS)
 
     @property
     def get_CurrentValue(self):

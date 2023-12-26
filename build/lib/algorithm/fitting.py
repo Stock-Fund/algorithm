@@ -2,17 +2,17 @@ import numpy as np
 import matplotlib.pyplot as plt
 from sklearn.linear_model import LinearRegression
 
-## 拟合
+# 拟合
 
 
-## 0-60日收盘价简单拟合
-def simple_fit(days, closeprices):
-    lr = LinearRegression().fit(days, closeprices)
+# 0-60日收盘价简单拟合
+def simple_fit(days, values):
+    lr = LinearRegression().fit(days, values)
     # 返回斜率
     return lr.coef_[0]
 
 
-## rsrs拟合
+# rsrs拟合
 N_near = 18  # 计算最新斜率 slope，拟合度 r2 参考最近 N 天,一般是最近18天
 M_norm = 600  # 计算最新标准分 zscore，rsrs_score 参考最近 M 天,一般通过最近600日的数据进行归一化
 score_threshold = 0.7  # rsrs 标准分指标阈值

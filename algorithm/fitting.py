@@ -6,8 +6,8 @@ from sklearn.linear_model import LinearRegression
 
 
 # 0-60日收盘价简单拟合
-def simple_fit(days, closeprices):
-    lr = LinearRegression().fit(days, closeprices)
+def simple_fit(days, values):
+    lr = LinearRegression().fit(days, values)
     # 返回斜率
     return lr.coef_[0]
 

@@ -211,9 +211,9 @@ class Stock:
 
     #  return self.CheckBuyValue(self)
 
-    def dealcustomData(self, data):
-        self.close_prices = data["Close"].tolist()
-        self.close_prices_array = np.array(self.close_prices, dtype=np.double)
+    # 计算收盘的均值
+    def calculateCloseMA(self):
+        self.close_prices_array = np.array(self.CloseValues, dtype=np.double)
         # 计算MACD
         self.macd = ta.MACD(
             self.close_prices_array, fastperiod=12, slowperiod=26, signalperiod=9
@@ -226,6 +226,20 @@ class Stock:
         self.MA30 = np.nan_to_num(ta.SMA(self.close_prices_array, timeperiod=30), nan=0)
         self.MA40 = np.nan_to_num(ta.SMA(self.close_prices_array, timeperiod=40), nan=0)
         self.MA60 = np.nan_to_num(ta.SMA(self.close_prices_array, timeperiod=60), nan=0)
+        self.close_price_max = np.nanmax(self.close_prices_array)
+        self.close_price_min = np.nanmin(self.close_prices_array)
+
+    # 计算成交量的均值
+    def calculateVolumesMA(self):
+        self.volumes_array = np.array(self.Volumes, dtype=np.double)
+        self.volumeMA5 = np.nan_to_num(ta.SMA(self.volumes_array, timeperiod=5), nan=0)
+        self.volumeMA10 = np.nan_to_num(ta.SMA(self.volumes_array, timeperiod=10), nan=0)
+        self.volumeMA20 = np.nan_to_num(ta.SMA(self.volumes_array, timeperiod=20), nan=0)
+        self.volumeMA30 = np.nan_to_num(ta.SMA(self.volumes_array, timeperiod=30), nan=0)
+        self.volumeMA40 = np.nan_to_num(ta.SMA(self.volumes_array, timeperiod=40), nan=0)
+        self.volumeMA60 = np.nan_to_num(ta.SMA(self.volumes_array, timeperiod=60), nan=0)
+        self.volume_max = np.nanmax(self.volumes_array)
+        self.volume_min = np.nanmin(self.volumes_array)
 
     def __init__(self, data, datas):
         # N日内的收盘价格列表
@@ -267,7 +281,8 @@ class Stock:
         self.StopLoss = 0.97
 
         self.Calculate5_predict(1.099)
-        self.dealcustomData(data)
+        self.calculateCloseMA()
+        self.calculateVolumesMA()
 
     # 获取某个时间段内的均线值
     def get_MA(self, time):

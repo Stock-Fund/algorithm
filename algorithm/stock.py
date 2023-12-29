@@ -107,16 +107,16 @@ class Stock:
 
     # 破位逻辑
     def checkBroken(self):
-        closeValue = self.CloseValues[0]
+        closeValue = self.CloseValues[-1]
         if closeValue < self.MA5:
             print("破5日线")
-        elif closeValue < self.MA10:
+        if closeValue < self.MA10:
             print("破10日线")
-        elif closeValue < self.MA20:
+        if closeValue < self.MA20:
             print("破20日线")
-        elif closeValue < self.MA30:
+        if closeValue < self.MA30:
             print("破30日线")
-        elif closeValue < self.MA60:
+        if closeValue < self.MA60:
             print("破60日线")
 
     # 判断成交量是否超过平均量
@@ -129,10 +129,10 @@ class Stock:
         count = len(self.volumes)
         average = totalVolume / count
         # 放量
-        if self.Volumes[count - 1] > average * 1.5:
+        if self.Volumes[-1] > average * 1.5:
             return 1
         # 缩量
-        elif self.Volumes[count - 1] < average * 0.5:
+        elif self.Volumes[-1] < average * 0.5:
             return -1
         # 正常量
         else:
@@ -142,41 +142,28 @@ class Stock:
     def checkRise(self, index):
         return self.CloseValues[index] > self.OpenValues[index]
 
-    # 返回当天成交量和前一天成交的比值，大于1.5为放量，正负表示上涨下跌
+    # 返回当天成交量和前一天成交的比值，比值越大量能越大，正负表示上涨下跌
     def checkVolums(self):
         # 最后一位是最新数据
         count = len(self.Volumes)
-        today = self.Volumes[count - 1]
-        yesterday = self.Volumes[count - 2]
+        today = self.Volumes[-1]
+        yesterday = self.Volumes[-2]
         if self.checkRise(count - 1):
             return round(today / yesterday, 2)
         else:
             return -round(today / yesterday, 2)
 
-    # 检查收盘价是否远离均线
-    # 价格高于5日均线，但距离不超过5%。
-    # 价格高于10日均线，但距离不超过8%。
-    # 价格高于20日均线，但距离不超过10%。
-    # 价格高于30日均线，但距离不超过12%。
-    # 价格高于60日均线，但距离不超过15%。
-    def checkCloseFAFMA(self):
-        closecount = len(self.CloseValues)
-        close = self.CloseValues[closecount - 1]
-        ma5 = self.MA5[closecount - 1]
-        ma10 = self.MA10[closecount - 1]
-        ma20 = self.MA20[closecount - 1]
-        ma30 = self.MA30[closecount - 1]
-        ma60 = self.MA60[closecount - 1]
-        if (
-            close > ma5 * 1.05
-            and close > ma10 * 1.08
-            and close > ma20 * 1
-            and close > ma30 * 1.12
-            and close > ma60 * 1.15
-        ):
-            return True
-        else:
-            return False
+    # 检查收盘价是否靠近均线
+    def check_close_near_ma(self, threshold=1.0):
+        ma_periods = [5, 10, 20, 30, 40, 60]
+        days = []
+        if not self.close_prices_array.any():
+            self.close_prices_array = np.array(self.CloseValues, dtype=np.double)
+        for periods in ma_periods:
+            ma = sum(self.close_prices_array[-periods:]) / periods
+            if abs(self.CloseValues[-1] - ma) <= threshold:
+                days.append(periods)
+        return days
 
     # 主升浪逻辑
     def MainSL(self):

@@ -107,19 +107,19 @@ class Stock:
 
     # 破位逻辑
     def checkBroken(self):
-        closeValue = self.CloseValues[0]
+        closeValue = self.CloseValues[-1]
         if closeValue < self.MA5:
             print("破5日线")
-        elif closeValue < self.MA10:
+        if closeValue < self.MA10:
             print("破10日线")
-        elif closeValue < self.MA20:
+        if closeValue < self.MA20:
             print("破20日线")
-        elif closeValue < self.MA30:
+        if closeValue < self.MA30:
             print("破30日线")
-        elif closeValue < self.MA60:
+        if closeValue < self.MA60:
             print("破60日线")
 
-    # 判断是否是放量
+    # 判断成交量是否超过平均量
     # 以该股票最近一个月或者三个月的日均交易量为基准平均值。
     # 如果该日交易量高于基准平均值的一定倍数(如150%或者200%),则认为该日交易量较大,是放量。
     # 如果该日交易量低于基准平均值的一定比例(如50%或者70%),则认为该日交易量较小,是缩量。
@@ -129,10 +129,10 @@ class Stock:
         count = len(self.volumes)
         average = totalVolume / count
         # 放量
-        if self.Volumes[0] > average * 1.5:
+        if self.Volumes[-1] > average * 1.5:
             return 1
         # 缩量
-        elif self.Volumes[0] < average * 0.5:
+        elif self.Volumes[-1] < average * 0.5:
             return -1
         # 正常量
         else:
@@ -142,22 +142,35 @@ class Stock:
     def checkRise(self, index):
         return self.CloseValues[index] > self.OpenValues[index]
 
-    # 判断是否阳包阴，还是阴包阳
+    # 返回当天成交量和前一天成交的比值，比值越大量能越大，正负表示上涨下跌
     def checkVolums(self):
-        # 最后一位最新数据
+        # 最后一位是最新数据
         count = len(self.Volumes)
-        today = self.Volumes[count - 1]
-        yesterday = self.Volumes[count - 2]
-        if not self.checkRise(0) and yesterday < today:
-            return True
+        today = self.Volumes[-1]
+        yesterday = self.Volumes[-2]
+        if self.checkRise(count - 1):
+            return round(today / yesterday, 2)
         else:
-            return False
+            return -round(today / yesterday, 2)
+
+    # 检查收盘价是否靠近均线
+    def check_close_near_ma(self, threshold=1.0):
+        ma_periods = [5, 10, 20, 30, 40, 60]
+        days = []
+        if not self.close_prices_array.any():
+            self.close_prices_array = np.array(self.CloseValues, dtype=np.double)
+        for periods in ma_periods:
+            ma = sum(self.close_prices_array[-periods:]) / periods
+            if abs(self.CloseValues[-1] - ma) <= threshold:
+                days.append(periods)
+        return days
 
     # 主升浪逻辑
     def MainSL(self):
         mainBoo = False
-        # 1-60作为x轴的数值
-        days = np.arange(1, 61).reshape(-1, 1)
+        # 1-N作为x轴的数值
+        closeDays = len(self.CloseValues) + 1
+        days = np.arange(1, closeDays).reshape(-1, 1)
         # 收盘价 趋势连续上涨。价格形成一系列超过坚振位的高点和低点,形成上扬趋势。
         slope = fitting.simple_fit(days, self.CloseValues)
         # 简单判断，当60日收盘价拟合斜率为正，表示60日收盘价处于上涨趋势，可以简单的算作主升浪情况
@@ -167,16 +180,24 @@ class Stock:
         mainBoo = True if slope > 0 else False
 
         # 均线上行。成交量均线、动量指标等有力指标呈现上升趋势MA(C,5)>MA(C,10) AND MA(C,10)>MA(C,20) AND MA(C,20)>MA(C,N) AND MA(C,N)>MA(C,120) AND MA(C,120)>REF(MA(C,120),1) AND MA(C,5)>REF(MA(C,5),1);
-        slopeMA5 = fitting.simple_fit(days, self.MA5s)
-        slopeMA10 = fitting.simple_fit(days, self.MA10s)
-        slopeMA20 = fitting.simple_fit(days, self.MA20s)
-        slopeMA60 = fitting.simple_fit(days, self.MA60s)
-        slopeMA120 = fitting.simple_fit(days, self.MA120s)
+        MA5Len = len(self.MA5s) + 1
+        slopeMA5 = fitting.simple_fit(MA5Len, self.MA5s)
+        MA10Len = len(self.MA10s) + 1
+        slopeMA10 = fitting.simple_fit(MA10Len, self.MA10s)
+        MA20Len = len(self.MA20s) + 1
+        slopeMA20 = fitting.simple_fit(MA20Len, self.MA20s)
+        MA30Len = len(self.MA30s) + 1
+        slopeMA30 = fitting.simple_fit(MA30Len, self.MA30s)
+        MA60Len = len(self.MA60s) + 1
+        slopeMA60 = fitting.simple_fit(MA60Len, self.MA60s)
+        MA120Len = len(self.MA120s) + 1
+        slopeMA120 = fitting.simple_fit(MA120Len, self.MA120s)
         mainBoo = (
             True
             if slopeMA5 > slopeMA10
             and slopeMA10 > slopeMA20
-            and slopeMA20 > slopeMA60
+            and slopeMA20 > slopeMA30
+            and slopeMA30 > slopeMA60
             and slopeMA60 > slopeMA120
             else False
         )
@@ -202,33 +223,45 @@ class Stock:
 
     #  return self.CheckBuyValue(self)
 
-    def dealcustomData(self, data):
-        self.close_prices = data["Close"].tolist()
-        self.close_prices_array = np.array(self.close_prices, dtype=np.double)
+    # 计算收盘的均值
+    def calculateCloseMA(self):
+        self.close_prices_array = np.array(self.CloseValues, dtype=np.double)
         # 计算MACD
         self.macd = ta.MACD(
             self.close_prices_array, fastperiod=12, slowperiod=26, signalperiod=9
         )
+
+        # 将数据中NAN替换为0，原因是不让数据的数量失真
         self.MA5 = np.nan_to_num(ta.SMA(self.close_prices_array, timeperiod=5), nan=0)
         self.MA10 = np.nan_to_num(ta.SMA(self.close_prices_array, timeperiod=10), nan=0)
         self.MA20 = np.nan_to_num(ta.SMA(self.close_prices_array, timeperiod=20), nan=0)
         self.MA30 = np.nan_to_num(ta.SMA(self.close_prices_array, timeperiod=30), nan=0)
         self.MA40 = np.nan_to_num(ta.SMA(self.close_prices_array, timeperiod=40), nan=0)
         self.MA60 = np.nan_to_num(ta.SMA(self.close_prices_array, timeperiod=60), nan=0)
-        return
-        mask5 = np.isnan(self.MA5)
-        mask10 = np.isnan(self.MA10)
-        mask20 = np.isnan(self.MA20)
-        mask30 = np.isnan(self.MA30)
-        mask40 = np.isnan(self.MA40)
-        mask60 = np.isnan(self.MA60)
+        self.close_price_max = np.nanmax(self.close_prices_array)
+        self.close_price_min = np.nanmin(self.close_prices_array)
 
-        self.MA5 = self.MA5[~mask5]
-        self.MA10 = self.MA10[~mask10]
-        self.MA20 = self.MA20[~mask20]
-        self.MA30 = self.MA30[~mask30]
-        self.MA40 = self.MA40[~mask40]
-        self.MA60 = self.MA60[~mask60]
+    # 计算成交量的均值
+    def calculateVolumesMA(self):
+        self.volumes_array = np.array(self.Volumes, dtype=np.double)
+        self.volumeMA5 = np.nan_to_num(ta.SMA(self.volumes_array, timeperiod=5), nan=0)
+        self.volumeMA10 = np.nan_to_num(
+            ta.SMA(self.volumes_array, timeperiod=10), nan=0
+        )
+        self.volumeMA20 = np.nan_to_num(
+            ta.SMA(self.volumes_array, timeperiod=20), nan=0
+        )
+        self.volumeMA30 = np.nan_to_num(
+            ta.SMA(self.volumes_array, timeperiod=30), nan=0
+        )
+        self.volumeMA40 = np.nan_to_num(
+            ta.SMA(self.volumes_array, timeperiod=40), nan=0
+        )
+        self.volumeMA60 = np.nan_to_num(
+            ta.SMA(self.volumes_array, timeperiod=60), nan=0
+        )
+        self.volume_max = np.nanmax(self.volumes_array)
+        self.volume_min = np.nanmin(self.volumes_array)
 
     def __init__(self, data, datas):
         # N日内的收盘价格列表
@@ -270,7 +303,8 @@ class Stock:
         self.StopLoss = 0.97
 
         self.Calculate5_predict(1.099)
-        self.dealcustomData(data)
+        self.calculateCloseMA()
+        self.calculateVolumesMA()
 
     # 获取某个时间段内的均线值
     def get_MA(self, time):

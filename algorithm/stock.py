@@ -165,8 +165,18 @@ class Stock:
         ma5 = self.MA5[closecount - 1]
         ma10 = self.MA10[closecount - 1]
         ma20 = self.MA20[closecount - 1]
-        if close > ma5 * 1.05 and close > ma10 * 1.08 and close > ma20 * 1:
+        ma30 = self.MA30[closecount - 1]
+        ma60 = self.MA60[closecount - 1]
+        if (
+            close > ma5 * 1.05
+            and close > ma10 * 1.08
+            and close > ma20 * 1
+            and close > ma30 * 1.12
+            and close > ma60 * 1.15
+        ):
             return True
+        else:
+            return False
 
     # 主升浪逻辑
     def MainSL(self):

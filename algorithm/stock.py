@@ -119,7 +119,7 @@ class Stock:
         elif closeValue < self.MA60:
             print("破60日线")
 
-    # 判断是否是放量
+    # 判断成交量是否超过平均量
     # 以该股票最近一个月或者三个月的日均交易量为基准平均值。
     # 如果该日交易量高于基准平均值的一定倍数(如150%或者200%),则认为该日交易量较大,是放量。
     # 如果该日交易量低于基准平均值的一定比例(如50%或者70%),则认为该日交易量较小,是缩量。
@@ -129,10 +129,10 @@ class Stock:
         count = len(self.volumes)
         average = totalVolume / count
         # 放量
-        if self.Volumes[0] > average * 1.5:
+        if self.Volumes[count - 1] > average * 1.5:
             return 1
         # 缩量
-        elif self.Volumes[0] < average * 0.5:
+        elif self.Volumes[count - 1] < average * 0.5:
             return -1
         # 正常量
         else:
@@ -142,16 +142,31 @@ class Stock:
     def checkRise(self, index):
         return self.CloseValues[index] > self.OpenValues[index]
 
-    # 判断是否阳包阴，还是阴包阳
+    # 返回当天成交量和前一天成交的比值，大于1.5为放量，正负表示上涨下跌
     def checkVolums(self):
-        # 最后一位最新数据
+        # 最后一位是最新数据
         count = len(self.Volumes)
         today = self.Volumes[count - 1]
         yesterday = self.Volumes[count - 2]
-        if not self.checkRise(0) and yesterday < today:
-            return True
+        if self.checkRise(count - 1):
+            return round(today / yesterday, 2)
         else:
-            return False
+            return -round(today / yesterday, 2)
+
+    # 检查收盘价是否远离均线
+    # 价格高于5日均线，但距离不超过5%。
+    # 价格高于10日均线，但距离不超过8%。
+    # 价格高于20日均线，但距离不超过10%。
+    # 价格高于30日均线，但距离不超过12%。
+    # 价格高于60日均线，但距离不超过15%。
+    def checkCloseFAFMA(self):
+        closecount = len(self.CloseValues)
+        close = self.CloseValues[closecount - 1]
+        ma5 = self.MA5[closecount - 1]
+        ma10 = self.MA10[closecount - 1]
+        ma20 = self.MA20[closecount - 1]
+        if close > ma5 * 1.05 and close > ma10 * 1.08 and close > ma20 * 1:
+            return True
 
     # 主升浪逻辑
     def MainSL(self):
@@ -233,11 +248,21 @@ class Stock:
     def calculateVolumesMA(self):
         self.volumes_array = np.array(self.Volumes, dtype=np.double)
         self.volumeMA5 = np.nan_to_num(ta.SMA(self.volumes_array, timeperiod=5), nan=0)
-        self.volumeMA10 = np.nan_to_num(ta.SMA(self.volumes_array, timeperiod=10), nan=0)
-        self.volumeMA20 = np.nan_to_num(ta.SMA(self.volumes_array, timeperiod=20), nan=0)
-        self.volumeMA30 = np.nan_to_num(ta.SMA(self.volumes_array, timeperiod=30), nan=0)
-        self.volumeMA40 = np.nan_to_num(ta.SMA(self.volumes_array, timeperiod=40), nan=0)
-        self.volumeMA60 = np.nan_to_num(ta.SMA(self.volumes_array, timeperiod=60), nan=0)
+        self.volumeMA10 = np.nan_to_num(
+            ta.SMA(self.volumes_array, timeperiod=10), nan=0
+        )
+        self.volumeMA20 = np.nan_to_num(
+            ta.SMA(self.volumes_array, timeperiod=20), nan=0
+        )
+        self.volumeMA30 = np.nan_to_num(
+            ta.SMA(self.volumes_array, timeperiod=30), nan=0
+        )
+        self.volumeMA40 = np.nan_to_num(
+            ta.SMA(self.volumes_array, timeperiod=40), nan=0
+        )
+        self.volumeMA60 = np.nan_to_num(
+            ta.SMA(self.volumes_array, timeperiod=60), nan=0
+        )
         self.volume_max = np.nanmax(self.volumes_array)
         self.volume_min = np.nanmin(self.volumes_array)
 

@@ -129,10 +129,10 @@ class Stock:
         count = len(self.volumes)
         average = totalVolume / count
         # 放量
-        if self.Volumes[-1] > average * 1.5:
+        if self.Volumes[-1] >= average * 1.5:
             return 1
         # 缩量
-        elif self.Volumes[-1] < average * 0.5:
+        elif self.Volumes[-1] <= average * 0.5:
             return -1
         # 正常量
         else:

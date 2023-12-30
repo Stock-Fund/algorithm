@@ -1,6 +1,7 @@
 import numpy as np
 import algorithm.fitting as fitting
 import talib as ta
+import statistics
 
 
 class Stock:
@@ -142,16 +143,37 @@ class Stock:
     def checkRise(self, index):
         return self.CloseValues[index] > self.OpenValues[index]
 
-    # 返回当天成交量和前一天成交的比值，比值越大量能越大，正负表示上涨下跌
-    def checkVolums(self):
-        # 最后一位是最新数据
-        count = len(self.Volumes)
-        today = self.Volumes[-1]
-        yesterday = self.Volumes[-2]
-        if self.checkRise(count - 1):
-            return round(today / yesterday, 2)
+    # 检测当天量能是否放量，反转 ，返回 True 放量反转 False 未放量反转
+    def checkVolums_Climax_Reversal(self):
+        currentVolum = self.Volumes[-1]
+        preVolums = self.Volumes[:-1]
+        averageVolum = sum(preVolums) / len(preVolums)
+        if currentVolum > averageVolum:
+            return True
         else:
-            return -round(today / yesterday, 2)
+            return False
+
+    # 计算价格波动幅度
+    def calculate_price_std(self, prices):
+        price_std = statistics.stdev(prices)
+        return price_std
+
+    def calculate_distance_from_sma(self, price, sma):
+        distance = abs(price - sma)
+        return distance
+
+    def check_closeness_to_sma(self, prices, sma_list, threshold=1.0):
+        price_std = self.calculate_price_std(prices)
+        close_to_sma = []
+
+        for sma in sma_list:
+            distance = self.calculate_distance_from_sma(prices[-1], sma)
+            adjusted_distance = distance / price_std
+
+        if adjusted_distance < threshold:
+            close_to_sma.append(sma)
+
+        return close_to_sma
 
     # 检查收盘价是否靠近均线
     def check_close_near_ma(self, threshold=1.0):

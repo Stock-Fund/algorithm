@@ -158,22 +158,30 @@ class Stock:
         price_std = statistics.stdev(prices)
         return price_std
 
+    # 计算价格和均线值之间的距离
     def calculate_distance_from_sma(self, price, sma):
         distance = abs(price - sma)
         return distance
 
-    def check_closeness_to_sma(self, prices, sma_list, threshold=1.0):
+    # 检查价格偏离多个均线时是否处于相对稳定状态。该函数遍历提供的均线列表，
+    # 对于每个均线，根据偏离因子计算上下边界，即均线加减偏离因子乘以价格标准差。
+    # 然后判断最后一个价格是否在上下边界之间，如果是，则认为价格处于相对稳定状态
+    # todo联系箱体逻辑
+    def check_stability(self, prices, sma_list, deviation_factor=0.5):
         price_std = self.calculate_price_std(prices)
-        close_to_sma = []
+        stability_status = []
 
         for sma in sma_list:
-            distance = self.calculate_distance_from_sma(prices[-1], sma)
-            adjusted_distance = distance / price_std
+            deviation = deviation_factor * price_std
+            upper_bound = sma + deviation
+            lower_bound = sma - deviation
 
-        if adjusted_distance < threshold:
-            close_to_sma.append(sma)
+            if lower_bound <= prices[-1] <= upper_bound:
+                stability_status.append(True)
+            else:
+                stability_status.append(False)
 
-        return close_to_sma
+        return stability_status
 
     # 检查收盘价是否靠近均线
     def check_close_near_ma(self, threshold=1.0):

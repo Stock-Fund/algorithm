@@ -183,17 +183,16 @@ class Stock:
 
         return stability_status
 
-    # 检查收盘价是否靠近均线
-    def check_close_near_ma(self, threshold=1.0):
-        ma_periods = [5, 10, 20, 30, 40, 60]
-        days = []
+    # 检查收盘价是否靠近某条均线
+    # 短期看5，10
+    # 长期看20，30，40，60等
+    def check_close_near_ma(self, day, threshold=1.0):
         if not self.close_prices_array.any():
             self.close_prices_array = np.array(self.CloseValues, dtype=np.double)
-        for periods in ma_periods:
-            ma = sum(self.close_prices_array[-periods:]) / periods
-            if abs(self.CloseValues[-1] - ma) <= threshold:
-                days.append(periods)
-        return days
+        ma = sum(self.close_prices_array[-day:]) / day
+        if abs(self.CloseValues[-1] - ma) <= threshold:
+            return True
+        return False
 
     # 主升浪逻辑
     def MainSL(self):

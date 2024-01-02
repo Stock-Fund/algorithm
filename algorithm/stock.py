@@ -88,15 +88,6 @@ class Stock:
             trend.append("震荡")
         return trend
 
-    # 箱体逻辑
-    def checkBox(self, max, min):
-        if self.CurrentValue >= max:
-            return True
-        elif self.CurrentValue <= min:
-            return False
-        else:
-            return False
-
     # 判断市场热度
     def CheckMarketPopularity(self):
         if self.turnoverRates >= 10:
@@ -163,29 +154,42 @@ class Stock:
         distance = abs(price - sma)
         return distance
 
+    # 箱体逻辑
+    # 1 突破上边界
+    # -1 突破下边界
+    # 0 横盘震荡中
+    def checkBox(self, max, min):
+        if self.CurrentValue >= max:
+            return 1
+        elif self.CurrentValue <= min:
+            return -1
+        else:
+            return 0
+
     # 检查价格偏离多个均线时是否处于相对稳定状态。该函数遍历提供的均线列表，
     # 对于每个均线，根据偏离因子计算上下边界，即均线加减偏离因子乘以价格标准差。
     # 然后判断最后一个价格是否在上下边界之间，如果是，则认为价格处于相对稳定状态
-    # todo联系箱体逻辑
-    def check_stability(self, prices, sma_list, deviation_factor=0.5):
-        price_std = self.calculate_price_std(prices)
-        stability_status = []
+    # 收盘价  均线数组  价格浮动幅度参数
+    def check_stability(self, time_range, deviation_factor=0.5):
+        upper_bound = float("-inf")  # 初始值负无穷大
+        lower_bound = float("inf")  # 初始值正无穷大
+        _minValues = self.MinValues[-time_range:]
+        _maxValues = self.MaxValues[-time_range:]
 
-        for sma in sma_list:
-            deviation = deviation_factor * price_std
-            upper_bound = sma + deviation
-            lower_bound = sma - deviation
+        current_upper_bound = max(_maxValues)
+        current_lower_bound = min(_minValues)
 
-            if lower_bound <= prices[-1] <= upper_bound:
-                stability_status.append(True)
-            else:
-                stability_status.append(False)
+        if current_upper_bound > upper_bound:
+            upper_bound = current_upper_bound
 
-        return stability_status
+        if current_lower_bound < lower_bound:
+            lower_bound = current_lower_bound
+
+        return self.checkBox(upper_bound, lower_bound)
 
     # 检查收盘价是否靠近某条均线
-    # 短期看5，10
-    # 长期看20，30，40，60等
+    # 短期看5，10，20
+    # 长期看30，40，60等
     def check_close_near_ma(self, day, threshold=1.0):
         if not self.close_prices_array.any():
             self.close_prices_array = np.array(self.CloseValues, dtype=np.double)

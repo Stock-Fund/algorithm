@@ -18,12 +18,22 @@ def checkVolumeIncreaseOrShrink(stock):
         return 0
 
 
-# 检测当天量能是否放量，反转 ，返回 True 放量反转 False 未放量反转
-def checkVolums_Climax_Reversal(stock):
+# 检测当天量能是否放量超过平均量
+def checkAverageVolums_Climax_Reversal(stock):
     currentVolum = stock.Volumes[-1]
     preVolums = stock.Volumes[:-1]
     averageVolum = sum(preVolums) / len(preVolums)
     if currentVolum > averageVolum:
+        return True
+    else:
+        return False
+
+
+# 检测当天量能是否放量，反转 ，返回 True 放量反转 False 未放量反转
+def checkVolum_Climax_Reversal(stock):
+    currentVolum = stock.Volumes[-1]
+    preVolum = stock.Volumes[-2]
+    if currentVolum > preVolum:
         return True
     else:
         return False

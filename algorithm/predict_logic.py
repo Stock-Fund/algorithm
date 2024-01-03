@@ -2,9 +2,8 @@
 # 短线逻辑
 # 预测明天5日线价格,可能是阶段低点
 def Calculate5_predict(stock, s=1.099):
-    prices = stock["Close"][-5:]
     stock.predictValue = (
-        prices[-1] * s + prices[-3] + prices[-2] + prices[-4] + prices[-5]
+        stock.CloseValues[-1] * s + stock.CloseValues[-3] + stock.CloseValues[-2] + stock.CloseValues[-4] + stock.CloseValues[-5]
     ) / 5
 
 

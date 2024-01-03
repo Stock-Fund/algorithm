@@ -50,7 +50,7 @@ class Stock:
         # 止损卖出系数
         self.StopLoss = 0.97
 
-        predict.Calculate5_predict(1.099)
+        predict.Calculate5_predict(self, 1.099)
         ma.calculateCloseMA(self)
         ma.calculateVolumesMA(self)
 

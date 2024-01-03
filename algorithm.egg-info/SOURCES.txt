@@ -1,8 +1,14 @@
 README.md
 setup.py
 algorithm/__init__.py
+algorithm/boll_logic.py
+algorithm/box_logic.py
 algorithm/fitting.py
+algorithm/ma_logic.py
+algorithm/predict_logic.py
 algorithm/stock.py
+algorithm/turnoverRates_logic.py
+algorithm/volum_logic.py
 algorithm.egg-info/PKG-INFO
 algorithm.egg-info/SOURCES.txt
 algorithm.egg-info/dependency_links.txt

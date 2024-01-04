@@ -18,12 +18,47 @@ def checkVolumeIncreaseOrShrink(stock):
         return 0
 
 
-# 检测当天量能是否放量，反转 ，返回 True 放量反转 False 未放量反转
-def checkVolums_Climax_Reversal(stock):
+# 检测当天量能是否放量超过平均量
+def checkAverageVolums_Climax_Reversal(stock):
     currentVolum = stock.Volumes[-1]
     preVolums = stock.Volumes[:-1]
     averageVolum = sum(preVolums) / len(preVolums)
     if currentVolum > averageVolum:
+        return True
+    else:
+        return False
+
+
+# 检测当天量能是否放量，反转 ，返回 True 放量反转 False 未放量反转
+def checkVolum_Climax_Reversal(stock):
+    currentVolum = stock.Volumes[-1]
+    preVolum = stock.Volumes[-2]
+    if currentVolum > preVolum:
+        return True
+    else:
+        return False
+
+
+# 检测净成交量，得出的结果为正，表示该股内仍有主力，看多；反之则表示主力已出场，看空
+def check_net_volume(stock, days):
+    CloseValues = stock.Closes[-days:]
+    OpenValues = stock.Opens[-days:]
+    Volumes = stock.Volumes[-days:]
+    volumeNet = []
+    for i in range(len(CloseValues)):
+        closeValue = CloseValues[i]
+        openValue = OpenValues[i]
+        volumes = Volumes[i]
+        if closeValue > openValue:
+            volumeNet.append(volumes)  # 上涨，成交量为正
+        elif closeValue < openValue:
+            volumeNet.append(-volumes)  # 下跌，成交量为负
+        else:
+            volumeNet.append(0)  # 持平，成交量为0
+
+    # 计算成交量净值
+    volumeNetValue = sum(volumeNet)
+    if volumeNetValue >= 0:
         return True
     else:
         return False

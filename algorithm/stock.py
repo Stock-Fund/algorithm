@@ -57,6 +57,10 @@ class Stock:
     def checkVolums(self):
         return volum.checkVolums_Climax_Reversal(self)
 
+    # 获取指定股票的某段时间内的成交量净值
+    def checkNetVolumes(self, days):
+        return volum.check_net_volume(self, days)
+
     # 获取某个时间段内的均线值
     def get_MA(self, time):
         return ta.SMA(self.close_prices_array, timeperiod=time)

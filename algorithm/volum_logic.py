@@ -41,8 +41,8 @@ def checkVolum_Climax_Reversal(stock):
 
 # 检测净成交量，得出的结果为正，表示该股内仍有主力，看多；反之则表示主力已出场，看空
 def check_net_volume(stock, days):
-    CloseValues = stock.Closes[-days:]
-    OpenValues = stock.Opens[-days:]
+    CloseValues = stock.CloseValues[-days:]
+    OpenValues = stock.OpenValues[-days:]
     Volumes = stock.Volumes[-days:]
     volumeNet = []
     for i in range(len(CloseValues)):
@@ -58,6 +58,7 @@ def check_net_volume(stock, days):
 
     # 计算成交量净值
     volumeNetValue = sum(volumeNet)
+    # print(f'成交量净值：{volumeNetValue}')
     if volumeNetValue >= 0:
         return True
     else:

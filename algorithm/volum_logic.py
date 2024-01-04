@@ -58,8 +58,9 @@ def check_net_volume(stock, days):
 
     # 计算成交量净值
     volumeNetValue = sum(volumeNet)
+    return volumeNetValue
     # print(f'成交量净值：{volumeNetValue}')
-    if volumeNetValue >= 0:
-        return True
-    else:
-        return False
+    # if volumeNetValue >= 0:
+    #     return True
+    # else:
+    #     return False

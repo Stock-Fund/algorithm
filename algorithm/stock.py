@@ -54,6 +54,12 @@ class Stock:
         ma.calculateCloseMA(self)
         ma.calculateVolumesMA(self)
 
+    def checkMA(self, day):
+        return ma.checkMA(self, day)
+
+    def checkMA20(self):
+        return ma.checkMA20(self)
+
     def checkVolums(self):
         return volum.checkVolums_Climax_Reversal(self)
 

@@ -137,6 +137,15 @@ def checkBroken(stock):
         print("破60日线")
 
 
+# 20日生命线逻辑
+def checkMA20(stock):
+    ma20 = stock.MA20[-1]
+    if ma20 > stock.MA20[-2]:
+        print("20日线上穿")
+    else:
+        print("20日线下穿")
+
+
 # 上一个交易日是否是跌势
 def IsFallYesterday(stock):
     value = stock.CloseValues[-2]

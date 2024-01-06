@@ -139,11 +139,33 @@ def checkBroken(stock):
 
 # 20日生命线逻辑
 def checkMA20(stock):
-    ma20 = stock.MA20[-1]
-    if ma20 > stock.MA20[-2]:
-        print("20日线上穿")
+    closeValue = stock.CloseValues[-1]
+    maValue = stock.MA20[-1]
+    if closeValue > maValue:
+        # print("20日线上穿")
+        return True
     else:
-        print("20日线下穿")
+        # print("20日线下穿")
+        return False
+
+
+# 检测收盘价是否上穿/下穿某均线
+def checkMA(stock, day):
+    closeValue = stock.CloseValues[-1]
+    ma = stock.MA5[-1]
+    if day == 5:
+        ma = stock.MA5[-1]
+    elif day == 10:
+        ma = stock.MA10[-1]
+    elif day == 20:
+        ma = stock.MA20[-1]
+    elif day == 30:
+        ma = stock.MA30[-1]
+    elif day == 40:
+        ma = stock.MA40[-1]
+    elif day == 60:
+        ma = stock.MA60[-1]
+    return closeValue > ma
 
 
 # 上一个交易日是否是跌势

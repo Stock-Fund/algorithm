@@ -57,6 +57,9 @@ class Stock:
     def checkMA(self, day):
         return ma.checkMA(self, day)
 
+    def checkMA5(self, day):
+        return ma.checkMA5(self, day)
+
     def checkMA20(self):
         return ma.checkMA20(self)
 

@@ -137,6 +137,18 @@ def checkBroken(stock):
         print("破60日线")
 
 
+# 5日短线逻辑
+def checkMA5(stock):
+    closeValue = stock.CloseValues[-1]
+    maValue = stock.MA5[-1]
+    if closeValue > maValue:
+        # print("5日线上穿")
+        return True
+    else:
+        # print("5日线下穿")
+        return False
+
+
 # 20日生命线逻辑
 def checkMA20(stock):
     closeValue = stock.CloseValues[-1]

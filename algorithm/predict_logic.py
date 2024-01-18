@@ -2,9 +2,21 @@
 # 短线逻辑
 # 预测明天5日线价格,可能是阶段低点
 def Calculate5_predict(stock, s=1.099):
-    stock.predictValue = (
-        stock.CloseValues[-1] * s + stock.CloseValues[-3] + stock.CloseValues[-2] + stock.CloseValues[-4] + stock.CloseValues[-5]
-    ) / 5
+    if len(stock.CloseValues) < 5:
+        # 如果 CloseValues 的长度小于 5，无法进行预测，可以抛出异常或返回默认值
+        # raise ValueError("Insufficient data to make prediction.")
+        print("stock.CloseValues的长度不满足计算条件")
+        # 或者返回默认值
+        predictValue = -1
+    else:
+        predictValue = (
+            stock.CloseValues[-1] * s
+            + stock.CloseValues[-3]
+            + stock.CloseValues[-2]
+            + stock.CloseValues[-4]
+            + stock.CloseValues[-5]
+        ) / 5
+    stock.predictValue = predictValue
 
 
 # 龙头低吸算法1（预测5日线买入算法）

@@ -198,3 +198,22 @@ def IsFallToday(stock):
 def calculate_distance_from_sma(price, sma):
     distance = abs(price - sma)
     return distance
+
+
+# N日乖离率计算
+def calculate_bias(stock, day):
+    close = stock.CloseValues[-1]
+    if day == 5:
+        sma = stock.MA5[-1]
+    elif day == 10:
+        sma = stock.MA10[-1]
+    elif day == 20:
+        sma = stock.MA20[-1]
+    elif day == 30:
+        sma = stock.MA30[-1]
+    elif day == 40:
+        sma = stock.MA40[-1]
+    elif day == 60:
+        sma = stock.MA60[-1]
+    bias = (close - sma) / sma * 100
+    return bias

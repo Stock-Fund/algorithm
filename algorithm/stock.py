@@ -63,8 +63,16 @@ class Stock:
     def checkMA20(self):
         return ma.checkMA20(self)
 
-    def checkVolums(self):
-        return volum.checkVolums_Climax_Reversal(self)
+    # 是否超过平均量 ===> 放量
+    def checkReversalVolums(self):
+        return volum.checkAverageVolums_Climax_Reversal(self)
+
+    # 是否超过前一天的量能 ===> 反包
+    def checkVolumClimaxReversal(self):
+        return volum.checkVolum_Climax_Reversal(self)
+
+    def checkbias(self, day):
+        return ma.calculate_bias(self, day)
 
     # 获取指定股票的某段时间内的成交量净值
     def checkNetVolumes(self, days):
@@ -93,6 +101,16 @@ class Stock:
         daylen = len(MANS) + 1
         days = np.arange(1, daylen).reshape(-1, 1)
         return fitting.simple_fit(days, MANS)
+
+    def get_final_result(self, time):
+        # 斜率为正表示趋势向上
+        if self.get_slope(self, time) > 0:
+            # 检测当前日是否放量
+            if self.checkReversalVolums():
+                # 检测当前日是否反包
+                return self.checkReversalVolums()
+        else:
+            return False
 
     @property
     def get_CurrentValue(self):

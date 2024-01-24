@@ -102,6 +102,7 @@ class Stock:
         days = np.arange(1, daylen).reshape(-1, 1)
         return fitting.simple_fit(days, MANS)
 
+    # 成交量复合判断逻辑
     def get_final_result(self, time):
         # 斜率为正表示趋势向上
         if self.get_slope(self, time) > 0:
@@ -111,6 +112,49 @@ class Stock:
                 return self.checkReversalVolums()
         else:
             return False
+
+    def checkbiasoffset(self, day):
+        bias_offset = 0.03
+        if day == 5:
+            bias_offset = 0.02
+        elif day == 10:
+            bias_offset = 0.02
+        elif day == 20:
+            bias_offset = 0.03
+        elif day == 30:
+            bias_offset = 0.03
+        elif day == 40:
+            bias_offset = 0.05
+        elif day == 60:
+            bias_offset = 0.05
+        elif day == 120:
+            bias_offset = 0.05
+        return bias_offset
+
+    # 乖离率距离均线逻辑，一般以20日生命线为中期基准
+    # 5日，10日乖离率远离5日均线±2%范围内表示短期偏离正常，反之就有较大偏离需要注意离场
+    # 20日，30日乖离率远离5日均线±3%范围内表示短期偏离正常，反之就有较大偏离需要注意离场
+    # 40日，60日，120日乖离率远离5日均线±5%范围内表示短期偏离正常，反之就有较大偏离需要注意离场
+    def get_bias_result(self, day=20):
+        bias_offset = self.checkbiasoffset(day)
+        bias = ma.calculate_bias(self, day)
+        if abs(bias) > bias_offset:
+            return False
+        else:
+            return True
+
+    # 获取某个时间点超买，超卖状态
+    # -1 表示超买 ； 1 表示超卖 ； 0 表示在震荡区间内
+    def get_over_trade(self, day=20):
+        bias_offset = self.checkbias(day)
+        bias = ma.calculate_bias(self, day)
+        if abs(bias) > bias_offset:
+            if bias > 0:
+                return -1
+            else:
+                return 1
+        else:
+            return 0
 
     @property
     def get_CurrentValue(self):

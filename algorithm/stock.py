@@ -105,7 +105,7 @@ class Stock:
     # 成交量复合判断逻辑
     def get_final_result(self, time):
         # 斜率为正表示趋势向上
-        if self.get_slope(self, time) > 0:
+        if self.get_slope(time) > 0:
             # 检测当前日是否放量
             if self.checkReversalVolums():
                 # 检测当前日是否反包

@@ -45,9 +45,9 @@ class Stock:
         # 筹码集中度=成本区间的（高值-低值）/（高值+低值）
         self.Chipsconcentrations = datas[5]
         # 股票代码
-        self.StockNum = data[6]
+        self.StockNum = datas[6]
         # 股票名字
-        self.Name = data[7]
+        self.Name = datas[7]
 
         # 止盈卖出系数
         self.TakeProfit = 1.1
@@ -207,5 +207,13 @@ class Stock:
         return self.Chipsconcentrations
 
     @get_Chipsconcentrations.setter
-    def get_QuantityRatios(self, value):
+    def get_Chipsconcentrations(self, value):
         self.Chipsconcentrations = value
+
+    @property
+    def get_Name(self):
+        return self.Name
+
+    @get_Name.setter
+    def get_Name(self, value):
+        self.Name = value

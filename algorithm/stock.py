@@ -44,6 +44,10 @@ class Stock:
         # N内筹码集中度
         # 筹码集中度=成本区间的（高值-低值）/（高值+低值）
         self.Chipsconcentrations = datas[5]
+        # 股票代码
+        self.StockNum = data[6]
+        # 股票名字
+        self.Name = data[7]
 
         # 止盈卖出系数
         self.TakeProfit = 1.1
@@ -74,7 +78,7 @@ class Stock:
     def checkbias(self, day):
         return ma.calculate_bias(self, day)
 
-    # 获取指定股票的某段时间内的成交量净值
+    # 获取指定股票的某段时间内的成交量净值,主力是否在该股票中持有
     def checkNetVolumes(self, days):
         return volum.check_net_volume(self, days)
 
@@ -102,6 +106,14 @@ class Stock:
         days = np.arange(1, daylen).reshape(-1, 1)
         return fitting.simple_fit(days, MANS)
 
+    # 判断股票是否存在反转信号
+    def get_whether_reverse(self, time):
+        if self.checkReversalVolums():
+            # 检测当前日是否反包
+            return self.checkReversalVolums()
+        else:
+            return False
+
     # 成交量复合判断逻辑
     def get_final_result(self, time):
         # 斜率为正表示趋势向上
@@ -109,7 +121,9 @@ class Stock:
             # 检测当前日是否放量
             if self.checkReversalVolums():
                 # 检测当前日是否反包
-                return self.checkReversalVolums()
+                if self.checkReversalVolums():
+                    # 检查股票检查时间段内成交量是否为正，主力是否还在潜伏
+                    return self.checkNetVolumes(0) > 0
         else:
             return False
 

@@ -219,4 +219,6 @@ def calculate_bias(stock, day=20):
     elif day == 60:
         sma = stock.MA60[-1]
     bias = (close - sma) / sma * 100
+    name = stock.Name
+    print(f"{name}的{day}日乖离率为:{bias}")
     return bias

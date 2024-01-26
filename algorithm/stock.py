@@ -170,6 +170,20 @@ class Stock:
         else:
             return 0
 
+    def getMA(self, day):
+        if day == 5:
+            return self.MA5
+        elif day == 10:
+            return self.MA10
+        elif day == 20:
+            return self.MA20
+        elif day == 30:
+            return self.MA30
+        elif day == 60:
+            return self.MA60
+        elif day == 120:
+            return self.MA120
+
     @property
     def get_CurrentValue(self):
         return self.CurrentValue
@@ -217,3 +231,11 @@ class Stock:
     @get_Name.setter
     def get_Name(self, value):
         self.Name = value
+
+    @property
+    def get_Close_Values(self):
+        return self.close_prices_array
+
+    @get_Close_Values.setter
+    def get_Close_Values(self, value):
+        self.close_prices_array = value

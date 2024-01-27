@@ -25,6 +25,9 @@ class Stock:
         self.MinValues = data["Low"].tolist()
         # N日内成交量
         self.Volumes = data["Volume"].tolist()
+        
+        # 股票数据记录时间范围
+        self.Date = data['Date'].tolist
 
         self.close_prices_array = np.array(self.CloseValues, dtype=np.double)
 
@@ -86,8 +89,69 @@ class Stock:
     def get_MA(self, time):
         return ta.SMA(self.close_prices_array, timeperiod=time)
 
-    def get_MACD(self):
-        return ta.MACD(self.close_prices_array)
+    # 获取某个时间段内的macd数据
+    """
+        talib官方默认参数 fastperiod=12, slowperiod=26,signalperiod=9
+        参数:
+           fastperiod:快线【短周期均线】
+           slowperiod:慢线【长周期均线】
+           signalperiod:计算signalperiod天的macd的EMA均线【默认是9,无需更改】
+        返回参数：
+           macd【DIF】 = 12【fastperiod】天EMA - 26【slowperiod】天EMA
+           macdsignal【DEA或DEM】 = 计算macd的signalperiod天的EMA
+           macdhist【MACD柱状线】 = macd - macdsignal
+        对照表：
+              TA-lib的macd函数计算macd值，函数输出3个值，
+              macd（对应diff）
+              macdsignal（对应dea）
+              macdhist（对应macd）
+              然后按照下面的原则判断买入还是卖出。
+              1.DIFF、DEA均为正，DIFF向上突破DEA，买入信号。
+              2.DIFF、DEA均为负，DIFF向下跌破DEA，卖出信号。
+              3.DEA线与K线发生背离，行情反转信号。
+              4.分析MACD柱状线，由正变负，卖出信号；由负变正，买入信号。
+    """
+
+    def get_MACD(self, fastTime=12, slowTime=26, signalperiod=9):
+        return np.nan_to_num(
+            ta.MACD(
+                self.close_prices_array,
+                fastperiod=fastTime,
+                slowperiod=slowTime,
+                signalperiod=signalperiod,
+                slowperiod=slowTime,
+            ),
+            nan=0,
+        )
+
+    # 获取某个时间段内的macd的上涨区间
+    def get_MACD_Rise_Fall_Range(self, fastTime=12, slowTime=26, signalperiod=9):
+        macd_hist = np.nan_to_num(
+            ta.MACD(
+                self.close_prices_array,
+                fastperiod=fastTime,
+                slowperiod=slowTime,
+                signalperiod=signalperiod,
+                slowperiod=slowTime,
+            ),
+            nan=0,
+        )
+        # 找到日MACD的上涨区间和下降区间
+        daily_ranges = []
+        current_range_start = None
+
+        for i in range(len(macd_hist)):
+            if macd_hist[i] > 0:
+                if current_range_start is None:
+                    current_range_start = i
+            else:
+                if current_range_start is not None:
+                    daily_ranges.append((current_range_start, i - 1))
+                    current_range_start = None
+
+        if current_range_start is not None:
+            daily_ranges.append((current_range_start, len(macd_hist) - 1))
+        return daily_ranges
 
     def get_slope(self, time):
         if time == 5:

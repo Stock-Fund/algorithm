@@ -67,6 +67,11 @@ def MainSL(stock):
     return mainBoo
 
 
+# 获取给定日期长度的收盘价均值
+def get_MA(stock, day):
+    return np.nan_to_num(ta.SMA(stock.close_prices_array, timeperiod=day), nan=0)
+
+
 # 计算收盘的均值
 def calculateCloseMA(stock):
     stock.close_prices_array = np.array(stock.CloseValues, dtype=np.double)

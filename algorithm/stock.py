@@ -25,9 +25,9 @@ class Stock:
         self.MinValues = data["Low"].tolist()
         # N日内成交量
         self.Volumes = data["Volume"].tolist()
-        
+
         # 股票数据记录时间范围
-        self.Date = data['Date'].tolist
+        self.Date = data["Date"].tolist
 
         self.close_prices_array = np.array(self.CloseValues, dtype=np.double)
 
@@ -119,7 +119,6 @@ class Stock:
                 fastperiod=fastTime,
                 slowperiod=slowTime,
                 signalperiod=signalperiod,
-                slowperiod=slowTime,
             ),
             nan=0,
         )
@@ -132,7 +131,6 @@ class Stock:
                 fastperiod=fastTime,
                 slowperiod=slowTime,
                 signalperiod=signalperiod,
-                slowperiod=slowTime,
             ),
             nan=0,
         )
@@ -153,7 +151,12 @@ class Stock:
             daily_ranges.append((current_range_start, len(macd_hist) - 1))
         return daily_ranges
 
-    def get_slope(self, time):
+    def get_slope(self):
+        daylen = len(self.close_prices_array) + 1
+        days = np.arange(1, daylen).reshape(-1, 1)
+        return fitting.simple_fit(days, self.close_prices_array)
+
+    def get_MA_slope(self, time):
         if time == 5:
             MANS = self.MA5
         elif time == 10:
@@ -180,14 +183,16 @@ class Stock:
 
     # 成交量复合判断逻辑
     def get_final_result(self, time):
-        # 斜率为正表示趋势向上
-        if self.get_slope(time) > 0:
-            # 检测当前日是否放量
-            if self.checkReversalVolums():
-                # 检测当前日是否反包
+        # 斜率为正表示MA趋势向上
+        if self.get_MA_slope(time) > 0:
+            # 斜率为正表示收盘价趋势向上
+            if self.get_slope() > 0:
+                # 检测当前日是否放量
                 if self.checkReversalVolums():
-                    # 检查股票检查时间段内成交量是否为正，主力是否还在潜伏
-                    return self.checkNetVolumes(0) > 0
+                    # 检测当前日是否反包
+                    if self.checkReversalVolums():
+                        # 检查股票检查时间段内成交量是否为正，主力是否还在潜伏
+                        return self.checkNetVolumes(0) > 0
         else:
             return False
 

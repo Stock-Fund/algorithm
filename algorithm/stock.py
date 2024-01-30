@@ -193,6 +193,12 @@ class Stock:
                     if self.checkReversalVolums():
                         # 检查股票检查时间段内成交量是否为正，主力是否还在潜伏
                         return self.checkNetVolumes(0) > 0
+                    else:
+                        return False
+                else:
+                    return False
+            else:
+                return False
         else:
             return False
 

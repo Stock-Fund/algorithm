@@ -173,6 +173,10 @@ class Stock:
         days = np.arange(1, daylen).reshape(-1, 1)
         return fitting.simple_fit(days, MANS)
 
+    @property
+    def get_Date(self):
+        return self.Date
+
     # 判断股票是否存在反转信号
     def get_whether_reverse(self, time):
         if self.checkReversalVolums():

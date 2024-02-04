@@ -282,8 +282,22 @@ class Stock:
         )
 
         # Calculate simulated prices
-        simulated_prices = prices.iloc[-1] * (1 + simulations).cumprod(axis=1)
-        return simulated_prices
+        self.simulated_prices = prices.iloc[-1] * (1 + simulations).cumprod(axis=1)
+        return self.simulated_prices
+
+    def get_highest_probability_simulated_price(self, threshold=120):
+        occurrences = (self.simulated_prices > threshold).sum(
+            axis=1
+        )  # 统计每个路径中超过阈值的次数
+        probabilities = occurrences / len(self.simulated_prices)  # 计算概率值
+        # 按照概率值从高到低排序
+        sorted_indices = probabilities.argsort()[::-1]  # 按照概率值从高到低排序的索引
+        top_results = sorted_indices[:5]  # 取概率最高的前5个结果
+
+        # 输出概率最高的几个结果
+        for result_index in top_results:
+            probability = probabilities[result_index]
+            print(f"Result: {result_index}, Probability: {probability}")
 
     @property
     def get_CurrentValue(self):

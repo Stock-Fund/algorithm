@@ -17,6 +17,7 @@ class Stock:
     #     return self.CheckBuyByPredict()
 
     def __init__(self, data, datas):
+        self.dataFrame = data
         # N日内的收盘价格列表
         self.CloseValues = data["Close"].tolist()
         # N日内的开盘价格列表
@@ -266,7 +267,7 @@ class Stock:
     # 蒙特卡罗模拟基于生成多个随机场景来模拟系统的可变性。在金融环境中，我们可以使用这种技术来模拟股票的未来表现、风险评估、期权定价和预测未来资产价格
     def monte_carlo_simulation(self, num_simulations):
         # Get historical data
-        prices = self.CloseValues
+        prices = self.dataFrame["Close"]
 
         # Calculate daily returns
         daily_returns = prices.pct_change().dropna()

@@ -5,6 +5,7 @@ import algorithm.predict_logic as predict
 import algorithm.box_logic as box
 import algorithm.volum_logic as volum
 import talib as ta
+import pandas as pd
 
 
 class Stock:
@@ -298,6 +299,28 @@ class Stock:
         for result_index in top_results:
             probability = probabilities[result_index]
             print(f"Result: {result_index}, Probability: {probability}")
+    
+    # 返回kdj指标
+    def calculate_kdj(self, n=9, m1=3, m2=3):
+        df = pd.DataFrame(
+            {
+                "close": self.CloseValues,
+                "open": self.OpenValues,
+                "high": self.MaxValues,
+                "low": self.MinValues,
+            }
+        )
+        df["lowest_low"] = df["low"].rolling(window=n).min()
+        df["highest_high"] = df["high"].rolling(window=n).max()
+        df["rsv"] = (
+            (df["close"] - df["lowest_low"])
+            / (df["highest_high"] - df["lowest_low"])
+            * 100
+        )
+        df["k"] = df["rsv"].ewm(com=m1 - 1).mean()
+        df["d"] = df["k"].ewm(com=m2 - 1).mean()
+        df["j"] = 3 * df["k"] - 2 * df["d"]
+        return df
 
     @property
     def get_CurrentValue(self):

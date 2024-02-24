@@ -186,7 +186,11 @@ class Stock:
             return self.checkReversalVolums()
         else:
             return False
-
+    
+    # 短期5日线情绪 上穿则短期情绪高涨
+    def get_short_result(self):
+        return self.checkMA5(self)
+    
     # 成交量复合判断逻辑
     def get_final_result(self, time):
         # 斜率为正表示MA趋势向上

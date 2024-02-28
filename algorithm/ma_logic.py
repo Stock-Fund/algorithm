@@ -185,6 +185,16 @@ def checkMA(stock, day):
     return closeValue > ma
 
 
+# 检测月线是否为红通道
+def CheckMouth(stock):
+    # todo 月线收盘价
+    return False
+
+# 检测周线是否为红通道
+def CheckWeek(stock):
+    return False
+
+
 # 上一个交易日是否是跌势
 def IsFallYesterday(stock):
     value = stock.CloseValues[-2]

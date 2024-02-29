@@ -19,6 +19,12 @@ class Stock:
 
     def __init__(self, data, datas):
         self.dataFrame = data
+        data.index = pd.to_datetime(data.index)
+        # 周级别数据
+        self.WeekValue = data.resample("W").last()
+        # 月级别数据
+        self.MouthValue = data.resample("M").last()
+
         # N日内的收盘价格列表
         self.CloseValues = data["Close"].tolist()
         # N日内的开盘价格列表
@@ -186,11 +192,11 @@ class Stock:
             return self.checkReversalVolums()
         else:
             return False
-    
+
     # 短期5日线情绪 上穿则短期情绪高涨
     def get_short_result(self):
         return self.checkMA5(self)
-    
+
     # 成交量复合判断逻辑
     def get_final_result(self, time):
         # 斜率为正表示MA趋势向上
@@ -303,7 +309,7 @@ class Stock:
         for result_index in top_results:
             probability = probabilities[result_index]
             print(f"Result: {result_index}, Probability: {probability}")
-    
+
     # 返回kdj指标
     def calculate_kdj(self, n=9, m1=3, m2=3):
         df = pd.DataFrame(
@@ -325,6 +331,14 @@ class Stock:
         df["d"] = df["k"].ewm(com=m2 - 1).mean()
         df["j"] = 3 * df["k"] - 2 * df["d"]
         return df
+
+    @property
+    def get_weekValue(self):
+        return self.WeekValue
+
+    @property
+    def get_mouthValue(self):
+        return self.MouthValue
 
     @property
     def get_CurrentValue(self):

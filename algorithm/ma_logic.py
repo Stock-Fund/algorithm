@@ -91,6 +91,20 @@ def calculateCloseMA(stock):
     stock.close_price_min = np.nanmin(stock.close_prices_array)
 
 
+def calculateWeekMA(stock):
+    stock.MA_5W = stock.Week_series.rolling(window=5).mean()
+    stock.MA_10W = stock.Week_series.rolling(window=10).mean()
+    stock.MA_20W = stock.Week_series.rolling(window=20).mean()
+    stock.MA_30W = stock.Week_series.rolling(window=30).mean()
+
+
+def calculateMouthMA(stock):
+    stock.MA_5M = stock.Mouth_series.rolling(window=5).mean()
+    stock.MA_10M = stock.Mouth_series.rolling(window=10).mean()
+    stock.MA_20M = stock.Mouth_series.rolling(window=20).mean()
+    stock.MA_30M = stock.Mouth_series.rolling(window=30).mean()
+
+
 # 计算成交量的均值
 def calculateVolumesMA(stock):
     stock.volumes_array = np.array(stock.Volumes, dtype=np.double)
@@ -190,6 +204,7 @@ def CheckMouth(stock):
     # todo 月线收盘价
     return False
 
+
 # 检测周线是否为红通道
 def CheckWeek(stock):
     return False
@@ -237,3 +252,11 @@ def calculate_bias(stock, day=20):
     name = stock.Name
     print(f"{name}的{day}日乖离率为:{bias}")
     return bias
+
+
+def CheckWeekTrend(stock):
+    return stock.MA_5W > stock.MA_30W
+
+
+def CheckMonthTrend(stock):
+    return stock.MA_5M > stock.MA_30M

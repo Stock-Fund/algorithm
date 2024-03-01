@@ -21,10 +21,11 @@ class Stock:
         self.dataFrame = data
         data.index = pd.to_datetime(data.index)
         # 周级别数据
-        self.WeekValue = data.resample("W").last()
+        self.WeekValue = data.resample("W").last().tolist()
+        self.Week_series = pd.Series(self.WeekValue)
         # 月级别数据
-        self.MouthValue = data.resample("M").last()
-
+        self.MouthValue = data.resample("M").last().tolist()
+        self.Mouth_series = pd.Series(self.MouthValue)
         # N日内的收盘价格列表
         self.CloseValues = data["Close"].tolist()
         # N日内的开盘价格列表
@@ -67,6 +68,8 @@ class Stock:
 
         predict.Calculate5_predict(self, 1.099)
         ma.calculateCloseMA(self)
+        ma.calculateWeekMA(self)
+        ma.calculateMouthMA(self)
         ma.calculateVolumesMA(self)
 
     def checkMA(self, day):

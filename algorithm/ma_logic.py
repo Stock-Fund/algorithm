@@ -141,7 +141,7 @@ def detect_trend(stock):
     return trend
 
 
-# 判断均线一定日期内的趋势
+# 判断对应均线一定日期内的趋势
 def check_moving_average_trend(stock, type, time, range=10):
     if type == "Day":
         MAS = stock.MA5
@@ -195,19 +195,16 @@ def check_moving_average_trend(stock, type, time, range=10):
 # 判断均线是否粘合
 def check_moving_average_convergence(stock, type, range=10):
     if type == "Day":
-        MA5 = stock.MA5
         MA10 = stock.MA10
         MA20 = stock.MA20
         MA30 = stock.MA30
         MA60 = stock.MA60
     elif type == "Week":
-        MA5 = stock.MA_5W
         MA10 = stock.MA_10W
         MA20 = stock.MA_20W
         MA30 = stock.MA_30W
         MA60 = stock.MA_60W
     elif type == "Month":
-        MA5 = stock.MA_5M
         MA10 = stock.MA_10M
         MA20 = stock.MA_20M
         MA30 = stock.MA_30M
@@ -216,17 +213,29 @@ def check_moving_average_convergence(stock, type, range=10):
     tolerance = 0.05  # 定义容差范围
 
     diff_avg = (
-        abs(MA5[-range:] - MA10[-range:])
-        + abs(MA10[-range:] - MA20[-range:])
+        abs(MA10[-range:] - MA20[-range:])
         + abs(MA20[-range:] - MA30[-range:])
         + abs(MA30[-range:] - MA60[-range:])
-    ) / 4
+    ) / 3
 
     if diff_avg <= tolerance:
         print("均线粘合")
         return True
     else:
         print("均线不粘合")
+        return False
+
+
+# 周线级别金叉,股价进入上升通道
+def check_ma_crossing(stock):
+    MA10 = stock.MA_10W
+    MA30 = stock.MA_30W
+
+    if MA10[-1] > MA30[-1] and MA10[-2] <= MA30[-2]:
+        print("10周均线上穿30周均线")
+        return True
+    else:
+        print("10周均线未上穿30周均线")
         return False
 
 

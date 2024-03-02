@@ -141,6 +141,95 @@ def detect_trend(stock):
     return trend
 
 
+# 判断均线一定日期内的趋势
+def check_moving_average_trend(stock, type, time, range=10):
+    if type == "Day":
+        MAS = stock.MA5
+        if time == 5:
+            MAS = stock.MA5
+        elif time == 10:
+            MAS = stock.MA10
+        elif time == 20:
+            MAS = stock.MA20
+        elif time == 30:
+            MAS = stock.MA30
+        elif time == 60:
+            MAS = stock.MA60
+    elif type == "Week":
+        MAS = stock.MA_5W
+        if time == 5:
+            MAS = stock.MA_5W
+        elif time == 10:
+            MAS = stock.MA_10W
+        elif time == 20:
+            MAS = stock.MA_20W
+        elif time == 30:
+            MAS = stock.MA_30W
+        elif time == 60:
+            MAS = stock.MA_60W
+    elif type == "Month":
+        MAS = stock.MA_5M
+        if time == 5:
+            MAS = stock.MA_5M
+        elif time == 10:
+            MAS = stock.MA_10M
+        elif time == 20:
+            MAS = stock.MA_20M
+        elif time == 30:
+            MAS = stock.MA_30M
+        elif time == 60:
+            MAS = stock.MA_60M
+    MAS = MAS[-range:]
+    # 计算均线
+    window_size = 30  # 指定日期范围
+    # 找到最低点
+    lowest_index = np.argmin(MAS)
+    lowest_date = lowest_index + window_size  # 对应的日期是窗口期加上最低点的索引
+    lowest_price = MAS[lowest_date]
+    current_price = MAS[-1]
+    # 当前价位与最低价位的比较，如果当前价位大于等于最低价位返回True，反之返回False
+    return current_price >= lowest_price
+    # print("最低点日期：", lowest_date, "最低点收盘价：", lowest_price)
+
+
+# 判断均线是否粘合
+def check_moving_average_convergence(stock, type, range=10):
+    if type == "Day":
+        MA5 = stock.MA5
+        MA10 = stock.MA10
+        MA20 = stock.MA20
+        MA30 = stock.MA30
+        MA60 = stock.MA60
+    elif type == "Week":
+        MA5 = stock.MA_5W
+        MA10 = stock.MA_10W
+        MA20 = stock.MA_20W
+        MA30 = stock.MA_30W
+        MA60 = stock.MA_60W
+    elif type == "Month":
+        MA5 = stock.MA_5M
+        MA10 = stock.MA_10M
+        MA20 = stock.MA_20M
+        MA30 = stock.MA_30M
+        MA60 = stock.MA_60M
+
+    tolerance = 0.05  # 定义容差范围
+
+    diff_avg = (
+        abs(MA5[-range:] - MA10[-range:])
+        + abs(MA10[-range:] - MA20[-range:])
+        + abs(MA20[-range:] - MA30[-range:])
+        + abs(MA30[-range:] - MA60[-range:])
+    ) / 4
+
+    if diff_avg <= tolerance:
+        print("均线粘合")
+        return True
+    else:
+        print("均线不粘合")
+        return False
+
+
 # 破位逻辑
 def checkBroken(stock):
     closeValue = stock.CloseValues[-1]

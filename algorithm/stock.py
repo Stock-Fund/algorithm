@@ -81,6 +81,14 @@ class Stock:
     def checkMA20(self):
         return ma.checkMA20(self)
 
+    # 计算对应均线在一定时间跨度内的趋势
+    def checkMovingAverageTrend(self, type, day, range=10):
+        return ma.check_moving_average_trend(self, type, day, range)
+
+    # 计算对应均线是否存在均线粘合
+    def checkMovingAverageConvergence(self, type, range=10):
+        return ma.check_moving_average_convergence(self, type, range)
+
     # 是否超过平均量 ===> 放量
     def checkReversalVolums(self):
         return volum.checkAverageVolums_Climax_Reversal(self)

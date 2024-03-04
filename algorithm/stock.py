@@ -21,10 +21,10 @@ class Stock:
         self.dataFrame = data
         data.index = pd.to_datetime(data.index)
         # 周级别数据
-        self.WeekValue = data.resample("W").last().tolist()
+        self.WeekValue = data.resample("W").last().values.tolist()
         self.Week_series = pd.Series(self.WeekValue)
         # 月级别数据
-        self.MouthValue = data.resample("M").last().tolist()
+        self.MouthValue = data.resample("M").last().values.tolist()
         self.Mouth_series = pd.Series(self.MouthValue)
         # N日内的收盘价格列表
         self.CloseValues = data["Close"].tolist()

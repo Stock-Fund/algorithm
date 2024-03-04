@@ -194,7 +194,7 @@ def check_moving_average_trend(stock, type, time, range=10):
     # print("最低点日期：", lowest_date, "最低点收盘价：", lowest_price)
 
 
-# 判断均线是否粘合
+# 判断均线是否粘合 判断是否存在主力控盘
 def check_moving_average_convergence(stock, type, range=10):
     if type == "Day":
         MA10 = stock.MA10

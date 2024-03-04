@@ -92,17 +92,19 @@ def calculateCloseMA(stock):
 
 
 def calculateWeekMA(stock):
-    stock.MA_5W = stock.Week_series.rolling(window=5).mean()
-    stock.MA_10W = stock.Week_series.rolling(window=10).mean()
-    stock.MA_20W = stock.Week_series.rolling(window=20).mean()
-    stock.MA_30W = stock.Week_series.rolling(window=30).mean()
+    weekValue = stock.week_close_prices_array
+    stock.MA_5W = np.nan_to_num(ta.SMA(weekValue, timeperiod=5), nan=0)
+    stock.MA_10W = np.nan_to_num(ta.SMA(weekValue, timeperiod=10), nan=0)
+    stock.MA_20W = np.nan_to_num(ta.SMA(weekValue, timeperiod=20), nan=0)
+    stock.MA_30W = np.nan_to_num(ta.SMA(weekValue, timeperiod=30), nan=0)
 
 
 def calculateMouthMA(stock):
-    stock.MA_5M = stock.Mouth_series.rolling(window=5).mean()
-    stock.MA_10M = stock.Mouth_series.rolling(window=10).mean()
-    stock.MA_20M = stock.Mouth_series.rolling(window=20).mean()
-    stock.MA_30M = stock.Mouth_series.rolling(window=30).mean()
+    mouthValue = stock.mouth_close_prices_array
+    stock.MA_5M = np.nan_to_num(ta.SMA(mouthValue, timeperiod=5), nan=0)
+    stock.MA_10M = np.nan_to_num(ta.SMA(mouthValue, timeperiod=10), nan=0)
+    stock.MA_20M = np.nan_to_num(ta.SMA(mouthValue, timeperiod=20), nan=0)
+    stock.MA_30M = np.nan_to_num(ta.SMA(mouthValue, timeperiod=30), nan=0)
 
 
 # 计算成交量的均值

@@ -19,24 +19,50 @@ class Stock:
 
     def __init__(self, data, datas):
         self.dataFrame = data
-        data.index = pd.to_datetime(data.index)
-        # 周级别数据
-        self.WeekValue = data.resample("W").last().values.tolist()
-        self.Week_series = pd.Series(self.WeekValue)
-        # 月级别数据
-        self.MouthValue = data.resample("M").last().values.tolist()
-        self.Mouth_series = pd.Series(self.MouthValue)
         # N日内的收盘价格列表
-        self.CloseValues = data["Close"].tolist()
+        self.CloseValues = data.loc[0:, "Close"].tolist()
         # N日内的开盘价格列表
-        self.OpenValues = data["Open"].tolist()
-        self.MaxValues = data["High"].tolist()
-        self.MinValues = data["Low"].tolist()
+        self.OpenValues = data.loc[0:, "Open"].tolist()
+        self.MaxValues = data.loc[0:, "High"].tolist()
+        self.MinValues = data.loc[0:, "Low"].tolist()
         # N日内成交量
-        self.Volumes = data["Volume"].tolist()
+        self.Volumes = data.loc[0:, "Volume"].tolist()
 
         # 股票数据记录时间范围
-        self.Date = data["Date"].tolist
+        self.Date = data.loc[0, "Date"]
+
+        # 将Date列转换为日期时间类型
+        data["Date"] = pd.to_datetime(data["Date"])
+        # 将Date列设置为索引
+        data.set_index("Date", inplace=True)
+        # 对数据进行周重采样，并选择每周的最后一个值作为聚合方式
+        self.WeekData = data.resample("W").agg(
+            {
+                "Open": "last",
+                "High": "last",
+                "Low": "last",
+                "Close": "last",
+                "Adj Close": "last",
+                "Volume": "last",
+            }
+        )
+
+        self.WeekClose = self.WeekData["Close"].values
+        self.week_close_prices_array = np.array(self.WeekClose, dtype=np.double)
+
+        # 月级别数据
+        self.MouthData = data.resample("M").agg(
+            {
+                "Open": "last",
+                "High": "last",
+                "Low": "last",
+                "Close": "last",
+                "Adj Close": "last",
+                "Volume": "last",
+            }
+        )
+        self.MouthClose = self.MouthData["Close"].values
+        self.mouth_close_prices_array = np.array(self.MouthClose, dtype=np.double)
 
         self.close_prices_array = np.array(self.CloseValues, dtype=np.double)
 
@@ -352,12 +378,12 @@ class Stock:
         return False
 
     @property
-    def get_weekValue(self):
-        return self.WeekValue
+    def get_weekClose(self):
+        return self.WeekClose
 
     @property
-    def get_mouthValue(self):
-        return self.MouthValue
+    def get_mouthClose(self):
+        return self.MouthClose
 
     @property
     def get_CurrentValue(self):

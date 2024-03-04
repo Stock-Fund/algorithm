@@ -348,7 +348,8 @@ class Stock:
         # 股价进入上升通道
         if ma.check_ma_crossing(self):
             # 股票的周线是否存在粘合状态
-            self.checkMovingAverageConvergence(self, "Week", 20)
+            return self.checkMovingAverageConvergence(self, "Week", 20)
+        return False
 
     @property
     def get_weekValue(self):

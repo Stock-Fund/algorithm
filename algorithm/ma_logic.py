@@ -354,6 +354,28 @@ def calculate_bias(stock, day=20):
     return bias
 
 
+# 检查超买 与超卖类似，这里的判断标准是基于一个价格区间
+def CheckOverBuy(stock, maxPrice, minPrice, day=20):
+    if day == 5:
+        sma = stock.MA5[-1]
+    elif day == 10:
+        sma = stock.MA10[-1]
+    elif day == 20:
+        sma = stock.MA20[-1]
+    elif day == 30:
+        sma = stock.MA30[-1]
+    elif day == 40:
+        sma = stock.MA40[-1]
+    elif day == 60:
+        sma = stock.MA60[-1]
+    return False
+
+
+# 检查超卖
+def CheckOverSell(stock, day=20):
+    return False
+
+
 def CheckWeekTrend(stock):
     return stock.MA_5W > stock.MA_30W
 

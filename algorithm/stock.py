@@ -107,6 +107,16 @@ class Stock:
     def checkMA20(self):
         return ma.checkMA20(self)
 
+    # 检测超买超卖
+    def CheckDayOverBuy(self, maxPrice, minPrice, day=0):
+        return ma.CheckDayOverBuy(self, maxPrice, minPrice, day)
+
+    def CheckWeekOverBuy(self, maxPrice, minPrice, day=0):
+        return ma.CheckWeekOverBuy(self, maxPrice, minPrice, day)
+
+    def CheckMouthOverBuy(self, maxPrice, minPrice, day=0):
+        return ma.CheckMouthOverBuy(self, maxPrice, minPrice, day)
+
     # 计算对应均线在一定时间跨度内的趋势
     def checkMovingAverageTrend(self, type, day, range=10):
         return ma.check_moving_average_trend(self, type, day, range)

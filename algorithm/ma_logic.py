@@ -354,26 +354,73 @@ def calculate_bias(stock, day=20):
     return bias
 
 
-# 检查超买 与超卖类似，这里的判断标准是基于一个价格区间
-def CheckOverBuy(stock, maxPrice, minPrice, day=20):
-    if day == 5:
-        sma = stock.MA5[-1]
+# 检查日级别超买 超卖，这里的判断标准是基于一个价格区间 1:超买，0:正常，-1:超卖
+def CheckDayOverBuy(stock, maxPrice, minPrice, day=0):
+    if day == 0:
+        price = stock.CurrentValue
+    elif day == 5:
+        price = stock.MA5[-1]
     elif day == 10:
-        sma = stock.MA10[-1]
+        price = stock.MA10[-1]
     elif day == 20:
-        sma = stock.MA20[-1]
+        price = stock.MA20[-1]
     elif day == 30:
-        sma = stock.MA30[-1]
+        price = stock.MA30[-1]
     elif day == 40:
-        sma = stock.MA40[-1]
+        price = stock.MA40[-1]
     elif day == 60:
-        sma = stock.MA60[-1]
-    return False
+        price = stock.MA60[-1]
+    if price >= maxPrice:
+        return 1
+    elif price <= minPrice:
+        return -1
+    return 0
 
 
-# 检查超卖
-def CheckOverSell(stock, day=20):
-    return False
+# 检查周级别超买 超卖，这里的判断标准是基于一个价格区间 1:超买，0:正常，-1:超卖
+def CheckWeekOverBuy(stock, maxPrice, minPrice, day=0):
+    if day == 0:
+        price = stock.CurrentValue
+    elif day == 5:
+        price = stock.MA_5W[-1]
+    elif day == 10:
+        price = stock.MA_10W[-1]
+    elif day == 20:
+        price = stock.MA_20W[-1]
+    elif day == 30:
+        price = stock.MA_30W[-1]
+    elif day == 40:
+        price = stock.MA_40W[-1]
+    elif day == 60:
+        price = stock.MA_60W[-1]
+    if price >= maxPrice:
+        return 1
+    elif price <= minPrice:
+        return -1
+    return 0
+
+
+# 检查日级别超买 超卖，这里的判断标准是基于一个价格区间 1:超买，0:正常，-1:超卖
+def CheckMouthOverBuy(stock, maxPrice, minPrice, day=0):
+    if day == 0:
+        price = stock.CurrentValue
+    elif day == 5:
+        price = stock.MA_5M[-1]
+    elif day == 10:
+        price = stock.MA_10M[-1]
+    elif day == 20:
+        price = stock.MA_20M[-1]
+    elif day == 30:
+        price = stock.MA_30M[-1]
+    elif day == 40:
+        price = stock.MA_40M[-1]
+    elif day == 60:
+        price = stock.MA_60M[-1]
+    if price >= maxPrice:
+        return 1
+    elif price <= minPrice:
+        return -1
+    return 0
 
 
 def CheckWeekTrend(stock):

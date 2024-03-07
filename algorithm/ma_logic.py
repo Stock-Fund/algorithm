@@ -91,6 +91,28 @@ def calculateCloseMA(stock):
     stock.close_price_min = np.nanmin(stock.close_prices_array)
 
 
+# 计算短期股票买入点 以20日金叉60日为准，且60日线拐头向上
+def calculateDayMABuy(stock):
+    ma20_last = stock.MA20[-1]
+    ma20_pre = stock.MA20[-2]
+    ma60_last = stock.MA60[-1]
+    ma60_pre = stock.MA60[-2]
+    if ma60_last > ma60_pre and ma20_last > ma60_last and ma20_pre > ma60_pre:
+        return True
+    return False
+
+
+# 计算短期股票买入点 以20日死叉60日为准，且60日线拐头向下
+def calculateDayMASell(stock):
+    ma20_last = stock.MA20[-1]
+    ma20_pre = stock.MA20[-2]
+    ma60_last = stock.MA60[-1]
+    ma60_pre = stock.MA60[-2]
+    if ma60_last < ma60_pre and ma20_last < ma60_last and ma20_pre < ma60_pre:
+        return True
+    return False
+
+
 def calculateWeekMA(stock):
     weekValue = stock.week_close_prices_array
     stock.MA_5W = np.nan_to_num(ta.SMA(weekValue, timeperiod=5), nan=0)

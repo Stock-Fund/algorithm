@@ -379,13 +379,21 @@ class Stock:
         df["j"] = 3 * df["k"] - 2 * df["d"]
         return df
 
-    # 股票买入逻辑
+    # 股票周线级别买入逻辑
     def StockBuy(self):
         # 股价进入上升通道
         if ma.check_ma_crossing(self):
             # 股票的周线是否存在粘合状态
             return self.checkMovingAverageConvergence(self, "Week", 20)
         return False
+
+    # 股票日线级别买逻辑
+    def StockBuy_short(self):
+        return ma.calculateDayMABuy(self)
+
+    # 股票日线级别卖出逻辑
+    def StockSell_short(self):
+        return ma.calculateDayMASell(self)
 
     @property
     def get_weekClose(self):

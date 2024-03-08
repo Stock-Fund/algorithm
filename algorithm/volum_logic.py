@@ -64,3 +64,7 @@ def check_net_volume(stock, days):
     #     return True
     # else:
     #     return False
+
+# 计算N日内股票大单净量
+def check_Large_order_net_amount(stock, days):
+    return False

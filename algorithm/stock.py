@@ -27,7 +27,8 @@ class Stock:
         self.MinValues = data.loc[0:, "Low"].tolist()
         # N日内成交量
         self.Volumes = data.loc[0:, "Volume"].tolist()
-
+        # N日内不复权收盘价
+        self.adjCloses = data.loc[0:, "Adj Close"].tolist()
         # 股票数据记录时间范围
         self.Date = data.loc[0, "Date"]
 

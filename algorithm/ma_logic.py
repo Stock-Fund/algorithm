@@ -31,18 +31,19 @@ def MainSL(stock):
     # 日K线斜率在0.01以上。这种斜率代表股价处于明显的强劲上涨趋势中。
     mainBoo = True if slope > 0 else False
     # 均线上行。成交量均线、动量指标等有力指标呈现上升趋势MA(C,5)>MA(C,10) AND MA(C,10)>MA(C,20) AND MA(C,20)>MA(C,N) AND MA(C,N)>MA(C,120) AND MA(C,120)>REF(MA(C,120),1) AND MA(C,5)>REF(MA(C,5),1);
-    MA5Len = len(stock.MA5s) + 1
-    slopeMA5 = fitting.simple_fit(MA5Len, stock.MA5s)
-    MA10Len = len(stock.MA10s) + 1
-    slopeMA10 = fitting.simple_fit(MA10Len, stock.MA10s)
-    MA20Len = len(stock.MA20s) + 1
-    slopeMA20 = fitting.simple_fit(MA20Len, stock.MA20s)
-    MA30Len = len(stock.MA30s) + 1
-    slopeMA30 = fitting.simple_fit(MA30Len, stock.MA30s)
-    MA60Len = len(stock.MA60s) + 1
-    slopeMA60 = fitting.simple_fit(MA60Len, stock.MA60s)
-    MA120Len = len(stock.MA120s) + 1
-    slopeMA120 = fitting.simple_fit(MA120Len, stock.MA120s)
+    MA5Len = len(stock.MA5) + 1
+    slopeMA5 = fitting.simple_fit(MA5Len, stock.MA5)
+    MA10Len = len(stock.MA10) + 1
+    slopeMA10 = fitting.simple_fit(MA10Len, stock.MA10)
+    MA20Len = len(stock.MA20) + 1
+    slopeMA20 = fitting.simple_fit(MA20Len, stock.MA20)
+    MA30Len = len(stock.MA30) + 1
+    slopeMA30 = fitting.simple_fit(MA30Len, stock.MA30)
+    MA60Len = len(stock.MA60) + 1
+    slopeMA60 = fitting.simple_fit(MA60Len, stock.MA60)
+    MA120Len = len(stock.MA120) + 1
+    slopeMA120 = fitting.simple_fit(MA120Len, stock.MA120)
+    # 是否多头排列
     mainBoo = (
         True
         if slopeMA5 > slopeMA10
@@ -58,11 +59,6 @@ def MainSL(stock):
     # 考虑成交量变化：观察成交量是否在这段时间内保持相对稳定，没有明显的大幅增加或减少。
     # 考虑支撑和阻力位：观察价格是否在特定的支撑位和阻力位之间来回波动，没有突破这些关键价格水平。
     # 考虑市场整体趋势：了解市场整体的走势，如果整个市场也处于横盘状态，那么该股票处于横盘的可能性较高。
-    # todo 横盘判断
-    # todo 判断低位集中收购
-
-    # todo 判断新高突破
-    # todo 指标穿线支持。如动量指标金叉死叉等技术信号表明趋势有望继续
 
     return mainBoo
 
@@ -216,7 +212,7 @@ def check_moving_average_trend(stock, type, time, range=10):
     # print("最低点日期：", lowest_date, "最低点收盘价：", lowest_price)
 
 
-# 判断均线是否粘合 判断是否存在主力控盘
+# 判断均线是否粘合 判断是否存在主力控盘 横盘逻辑
 def check_moving_average_convergence(stock, type, range=10):
     if type == "Day":
         MA10 = stock.MA10

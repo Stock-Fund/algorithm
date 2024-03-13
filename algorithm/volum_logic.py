@@ -86,4 +86,4 @@ def check_Large_order_net_amount(stock, day):
         elif item.endswith("万"):
             value *= 0.0001  # 万转换为对应的数值
         curFlow += value
-    return curFlow + "亿"
+    return str(curFlow) + "亿"

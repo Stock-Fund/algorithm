@@ -79,14 +79,17 @@ class Stock:
 
         # N日分时均价  均价=成交总额/成交量 由于分时均价频率较高，则使用   均价 = 每日收盘时的成交总额/每日收盘时的成交量
         self.AveragePrices = datas[4]
+        
+        # 历史资金流入流出情况
+        self.in_out_flow = datas[5]
 
         # N内筹码集中度
         # 筹码集中度=成本区间的（高值-低值）/（高值+低值）
-        self.Chipsconcentrations = datas[5]
+        self.Chipsconcentrations = datas[6]
         # 股票代码
-        self.StockNum = datas[6]
+        self.StockNum = datas[7]
         # 股票名字
-        self.Name = datas[7]
+        self.Name = datas[8]
 
         # 止盈卖出系数
         self.TakeProfit = 1.1

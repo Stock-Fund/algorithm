@@ -79,5 +79,11 @@ def check_Large_order_net_amount(stock, day):
         tmpCount = closeValues_cout
     curFlow = 0
     for i in range(tmpCount):
-        curFlow += stock.in_out_flow[i]
-    return curFlow
+        item = stock.in_out_flow[i]
+        value = float(item[:-1])  # 去掉最后一个字符（亿或万）
+        if item.endswith("亿"):
+            value = value  # 亿转换为对应的数值
+        elif item.endswith("万"):
+            value *= 0.0001  # 万转换为对应的数值
+        curFlow += value
+    return curFlow + "亿"

@@ -79,7 +79,7 @@ class Stock:
 
         # N日分时均价  均价=成交总额/成交量 由于分时均价频率较高，则使用   均价 = 每日收盘时的成交总额/每日收盘时的成交量
         self.AveragePrices = datas[4]
-        
+
         # 历史资金流入流出情况
         self.in_out_flow = datas[5]
 
@@ -143,6 +143,10 @@ class Stock:
     # 获取指定股票的某段时间内的成交量净值,主力是否在该股票中持有
     def checkNetVolumes(self, days):
         return volum.check_net_volume(self, days)
+
+    # 检测指定股票某段时间内的资金流入流出情况
+    def checkFlow(self, day=0):
+        return volum.check_Large_order_net_amount(self, day)
 
     # 获取某个时间段内的均线值
     def get_MA(self, time):

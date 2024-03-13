@@ -65,6 +65,19 @@ def check_net_volume(stock, days):
     # else:
     #     return False
 
-# 计算N日内股票大单净量
-def check_Large_order_net_amount(stock, days):
-    return False
+
+# 计算N日内股票资金流入流出情况
+def check_Large_order_net_amount(stock, day):
+    in_out_flow_count = len(stock.in_out_flow)
+    closeValues_cout = len(stock.CloseValues)
+    tmpCount = 0
+    if day < in_out_flow_count:
+        in_out_flow_count = day
+    if in_out_flow_count < closeValues_cout:
+        tmpCount = in_out_flow_count
+    else:
+        tmpCount = closeValues_cout
+    curFlow = 0
+    for i in range(tmpCount):
+        curFlow += stock.in_out_flow[i]
+    return curFlow

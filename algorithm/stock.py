@@ -102,6 +102,25 @@ class Stock:
         ma.calculateMouthMA(self)
         ma.calculateVolumesMA(self)
 
+    # ===================== 均线逻辑
+    def getMA(self, day):
+        if day == 5:
+            return self.MA5
+        elif day == 10:
+            return self.MA10
+        elif day == 20:
+            return self.MA20
+        elif day == 30:
+            return self.MA30
+        elif day == 60:
+            return self.MA60
+        elif day == 120:
+            return self.MA120
+
+    # 获取某个时间段内的均线值
+    def get_MA(self, time):
+        return ta.SMA(self.close_prices_array, timeperiod=time)
+
     def checkMA(self, day):
         return ma.checkMA(self, day)
 
@@ -129,6 +148,52 @@ class Stock:
     def checkMovingAverageConvergence(self, type, range=10):
         return ma.check_moving_average_convergence(self, type, range)
 
+    def checkbias(self, day):
+        return ma.calculate_bias(self, day)
+
+    def get_slope(self):
+        daylen = len(self.close_prices_array) + 1
+        days = np.arange(1, daylen).reshape(-1, 1)
+        return fitting.simple_fit(days, self.close_prices_array)
+
+    def get_MA_slope(self, time):
+        if time == 5:
+            MANS = self.MA5
+        elif time == 10:
+            MANS = self.MA10
+        elif time == 20:
+            MANS = self.MA20
+        elif time == 30:
+            MANS = self.MA30
+        elif time == 40:
+            MANS = self.MA40
+        elif time == 60:
+            MANS = self.MA60
+        daylen = len(MANS) + 1
+        days = np.arange(1, daylen).reshape(-1, 1)
+        return fitting.simple_fit(days, MANS)
+
+    # 短期5日线情绪 上穿则短期情绪高涨
+    def get_short_result(self):
+        return self.checkMA5(self)
+
+    # 股票周线级别买入逻辑
+    def StockBuy(self):
+        # 股价进入上升通道
+        if ma.check_ma_crossing(self):
+            # 股票的周线是否存在粘合状态
+            return self.checkMovingAverageConvergence(self, "Week", 20)
+        return False
+
+    # 股票日线级别买入逻辑
+    def StockBuy_short(self):
+        return ma.calculateDayMABuy(self)
+
+    # 股票日线级别卖出逻辑
+    def StockSell_short(self):
+        return ma.calculateDayMASell(self)
+
+    # ===================== 成交量逻辑
     # 是否超过平均量 ===> 放量
     def checkReversalVolums(self):
         return volum.checkAverageVolums_Climax_Reversal(self)
@@ -137,22 +202,31 @@ class Stock:
     def checkVolumClimaxReversal(self):
         return volum.checkVolum_Climax_Reversal(self)
 
-    def checkbias(self, day):
-        return ma.calculate_bias(self, day)
-
     # 获取指定股票的某段时间内的成交量净值,主力是否在该股票中持有
     def checkNetVolumes(self, days):
         return volum.check_net_volume(self, days)
 
-    # 检测指定股票某段时间内的资金流入流出情况
-    def checkFlow(self, day=0):
+    # 检测指定股票某段时间内的资金流入流出情况 默认1天
+    def checkFlow(self, day=1):
         return volum.check_Large_order_net_amount(self, day)
 
-    # 获取某个时间段内的均线值
-    def get_MA(self, time):
-        return ta.SMA(self.close_prices_array, timeperiod=time)
+    # 检测一个月(22日)内资金流入流出情况
+    def checkMouthFlow(self):
+        return volum.check_Large_order_net_amount(self, 22)
 
-    # 获取某个时间段内的macd数据
+    # 检测一周(5日)内资金流入流出情况
+    def checkWeekFlow(self):
+        return volum.check_Large_order_net_amount(self, 5)
+
+    # 判断股票是否存在反转信号
+    def get_whether_reverse(self, time):
+        if self.checkReversalVolums():
+            # 检测当前日是否反包
+            return self.checkReversalVolums()
+        else:
+            return False
+
+    # =============== 获取某个时间段内的macd数据
     """
         talib官方默认参数 fastperiod=12, slowperiod=26,signalperiod=9
         参数:
@@ -214,44 +288,6 @@ class Stock:
             daily_ranges.append((current_range_start, len(macd_hist) - 1))
         return daily_ranges
 
-    def get_slope(self):
-        daylen = len(self.close_prices_array) + 1
-        days = np.arange(1, daylen).reshape(-1, 1)
-        return fitting.simple_fit(days, self.close_prices_array)
-
-    def get_MA_slope(self, time):
-        if time == 5:
-            MANS = self.MA5
-        elif time == 10:
-            MANS = self.MA10
-        elif time == 20:
-            MANS = self.MA20
-        elif time == 30:
-            MANS = self.MA30
-        elif time == 40:
-            MANS = self.MA40
-        elif time == 60:
-            MANS = self.MA60
-        daylen = len(MANS) + 1
-        days = np.arange(1, daylen).reshape(-1, 1)
-        return fitting.simple_fit(days, MANS)
-
-    @property
-    def get_Date(self):
-        return self.Date
-
-    # 判断股票是否存在反转信号
-    def get_whether_reverse(self, time):
-        if self.checkReversalVolums():
-            # 检测当前日是否反包
-            return self.checkReversalVolums()
-        else:
-            return False
-
-    # 短期5日线情绪 上穿则短期情绪高涨
-    def get_short_result(self):
-        return self.checkMA5(self)
-
     # 成交量复合判断逻辑
     def get_final_result(self, time):
         # 斜率为正表示MA趋势向上
@@ -273,6 +309,7 @@ class Stock:
         else:
             return False
 
+    # ============== 乖离率逻辑
     def checkbiasoffset(self, day):
         bias_offset = 0.03
         if day == 5:
@@ -316,20 +353,7 @@ class Stock:
         else:
             return 0
 
-    def getMA(self, day):
-        if day == 5:
-            return self.MA5
-        elif day == 10:
-            return self.MA10
-        elif day == 20:
-            return self.MA20
-        elif day == 30:
-            return self.MA30
-        elif day == 60:
-            return self.MA60
-        elif day == 120:
-            return self.MA120
-
+    # ================ 蒙特卡罗模拟逻辑
     # 蒙特卡罗模拟基于生成多个随机场景来模拟系统的可变性。在金融环境中，我们可以使用这种技术来模拟股票的未来表现、风险评估、期权定价和预测未来资产价格
     def monte_carlo_simulation(self, num_simulations):
         # Get historical data
@@ -365,6 +389,7 @@ class Stock:
             probability = probabilities[result_index]
             print(f"Result: {result_index}, Probability: {probability}")
 
+    # ================== kdj指标
     # 返回kdj指标
     def calculate_kdj(self, n=9, m1=3, m2=3):
         df = pd.DataFrame(
@@ -387,21 +412,10 @@ class Stock:
         df["j"] = 3 * df["k"] - 2 * df["d"]
         return df
 
-    # 股票周线级别买入逻辑
-    def StockBuy(self):
-        # 股价进入上升通道
-        if ma.check_ma_crossing(self):
-            # 股票的周线是否存在粘合状态
-            return self.checkMovingAverageConvergence(self, "Week", 20)
-        return False
-
-    # 股票日线级别买逻辑
-    def StockBuy_short(self):
-        return ma.calculateDayMABuy(self)
-
-    # 股票日线级别卖出逻辑
-    def StockSell_short(self):
-        return ma.calculateDayMASell(self)
+    # ================ stock属性
+    @property
+    def get_Date(self):
+        return self.Date
 
     @property
     def get_weekClose(self):

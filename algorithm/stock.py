@@ -68,28 +68,35 @@ class Stock:
         self.close_prices_array = np.array(self.CloseValues, dtype=np.double)
 
         self.Time = datas[0]  # 10点之前打到预测ma5直接买，下午就缓缓
+
+        self.stockTimeData = datas[1]
         # 当前价格
-        self.CurrentValue = datas[1]
+        self.CurrentValue = self.stockTimeData[0]
 
-        # N日内换手率
-        self.turnoverRates = datas[2]
+        # 当日分时均价  均价=成交总额/成交量 由于分时均价频率较高，则使用   均价 = 每日收盘时的成交总额/每日收盘时的成交量
+        self.AveragePrices = self.stockTimeData[1]
 
-        # N日量比
-        self.QuantityRatios = datas[3]
+        # 当日内换手率
+        self.turnoverRates = self.stockTimeData[6]
 
-        # N日分时均价  均价=成交总额/成交量 由于分时均价频率较高，则使用   均价 = 每日收盘时的成交总额/每日收盘时的成交量
-        self.AveragePrices = datas[4]
+        # 当日日量比
+        self.QuantityRatios = self.stockTimeData[7]
+
+        # 当日外盘
+        self.outer_plat = self.stockTimeData[14]
+        # 当日内盘
+        self.inner_plat = self.stockTimeData[15]
 
         # 历史资金流入流出情况
-        self.in_out_flow = datas[5]
+        self.in_out_flow = datas[2]
 
         # N内筹码集中度
         # 筹码集中度=成本区间的（高值-低值）/（高值+低值）
-        self.Chipsconcentrations = datas[6]
+        self.Chipsconcentrations = datas[3]
         # 股票代码
-        self.StockNum = datas[7]
+        self.StockNum = datas[4]
         # 股票名字
-        self.Name = datas[8]
+        self.Name = datas[5]
 
         # 止盈卖出系数
         self.TakeProfit = 1.1

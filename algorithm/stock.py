@@ -82,6 +82,8 @@ class Stock:
         # 当日日量比
         self.QuantityRatios = self.stockTimeData[7]
 
+        # 当日开盘价
+        self.OpenValue = self.stockTimeData[10]
         # 当日外盘
         self.outer_plat = self.stockTimeData[14]
         # 当日内盘
@@ -203,11 +205,15 @@ class Stock:
     # ===================== 成交量逻辑
     # 是否超过平均量 ===> 放量
     def checkReversalVolums(self):
-        return volum.checkAverageVolums_Climax_Reversal(self)
+        return volum.checkVolumeIncreaseOrShrink(self)
 
     # 是否超过前一天的量能 ===> 反包
     def checkVolumClimaxReversal(self):
         return volum.checkVolum_Climax_Reversal(self)
+
+    # 检查成就量和股价变化对于后市的股价走势的判断
+    def checkVolumLogic(self):
+        return volum.check_volum_logic(self)
 
     # 获取指定股票的某段时间内的成交量净值,主力是否在该股票中持有
     def checkNetVolumes(self, days):

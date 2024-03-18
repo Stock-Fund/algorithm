@@ -4,16 +4,23 @@
 # 如果该日交易量低于基准平均值的一定比例(如50%或者70%),则认为该日交易量较小,是缩量。
 # 如果在基准平均值和放量标准之间,则认为交易量一般,既不是明显放量也不是缩量。
 def checkVolumeIncreaseOrShrink(stock):
-    totalVolume = sum(stock.Volumes)
-    count = len(stock.Volumes)
-    average = totalVolume / count
-    # 放量
-    if stock.Volumes[-1] >= average * 1.5:
+    # totalVolume = sum(stock.Volumes)
+    # count = len(stock.Volumes)
+    # average = totalVolume / count
+    # # 放量
+    # if stock.Volumes[-1] >= average * 1.5:
+    #     return 1
+    # # 缩量
+    # elif stock.Volumes[-1] <= average * 0.5:
+    #     return -1
+    # # 正常量
+    # else:
+    #     return 0
+    # 当量比大于1表示放量
+    if stock.QuantityRatios > 1:
         return 1
-    # 缩量
-    elif stock.Volumes[-1] <= average * 0.5:
+    elif stock.QuantitiyRatios < 1:
         return -1
-    # 正常量
     else:
         return 0
 
@@ -87,3 +94,36 @@ def check_Large_order_net_amount(stock, day):
             value *= 0.0001  # 万转换为对应的数值
         curFlow += value
     return str(curFlow) + "亿"
+
+
+# 成就量判断逻辑 2 主力随时可能准备拉升； 1  主力随时可能介入；0 无主力状态 ；-1 主力出逃
+def check_volum_logic(stock):
+    # 内，外盘比值上下限
+    lower_bound = 0.8
+    upper_bound = 1.2
+    if stock.inner_plat / stock.outer_plat >= upper_bound:
+        if stock.CurrentValue > stock.OpenValue:
+            # 放量
+            if checkVolumeIncreaseOrShrink(stock) == 1:
+                # 内盘大于外盘，股价放量下跌
+                return -1
+        else:
+            # 内盘大于外盘，股价不跌反涨，庄家在吸筹
+            return 2
+    elif stock.outer_plat / stock.inner_plat >= upper_bound:
+        if stock.CurrentValue > stock.OpenValue:
+            # 放量
+            if checkVolumeIncreaseOrShrink(stock) == 1:
+                # 外盘大于内盘，股价放量上涨，后市看涨
+                return 2
+        else:
+            # 外盘大于内盘，股价不涨反跌，庄家在出货
+            return -1
+    elif lower_bound < stock.outer_plat / stock.inner_plat < upper_bound:
+        # 内外盘相差不大 股价即将出现反转
+        return 1
+    elif stock.QuantitiyRatios < 0.5:
+        if stock.CurrentValue > stock.OpenValue:
+            # 内外盘都比较小 股价小幅上涨 代表庄家锁筹随时准备拉升
+            return 2
+    return 0

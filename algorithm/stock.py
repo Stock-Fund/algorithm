@@ -85,12 +85,22 @@ class Stock:
         # 当日开盘价
         self.OpenValue = self.stockTimeData[10]
         # 当日外盘
+        plat_value = 10000
         self.outer_plat = self.stockTimeData[14]
-        self.outer_plat = round(float(self.outer_plat.replace("万", "")), 2)
-
+        if self.outer_plat.endswith("万"):
+            self.outer_plat = round(
+                float(self.outer_plat.replace("万", "")) * plat_value, 2
+            )
+        else:
+            self.outer_plat = round(float(self.outer_plat), 2)
         # 当日内盘
         self.inner_plat = self.stockTimeData[15]
-        self.inner_plat = round(float(self.inner_plat.replace("万", "")), 2)
+        if self.inner_plat.endswith("万"):
+            self.inner_plat = round(
+                float(self.inner_plat.replace("万", "")) * plat_value, 2
+            )
+        else:
+            self.inner_plat = round(float(self.inner_plat), 2)
 
         # 历史资金流入流出情况
         self.in_out_flow = datas[2]

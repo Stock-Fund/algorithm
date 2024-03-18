@@ -17,9 +17,10 @@ def checkVolumeIncreaseOrShrink(stock):
     # else:
     #     return 0
     # 当量比大于1表示放量
-    if stock.QuantityRatios > 1:
+    QuantityRatios = float(stock.QuantityRatios)
+    if QuantityRatios > 1:
         return 1
-    elif stock.QuantitiyRatios < 1:
+    elif QuantityRatios < 1:
         return -1
     else:
         return 0
@@ -93,6 +94,7 @@ def check_Large_order_net_amount(stock, day):
         elif item.endswith("万"):
             value *= 0.0001  # 万转换为对应的数值
         curFlow += value
+    curFlow = round(curFlow, 2)
     return str(curFlow) + "亿"
 
 

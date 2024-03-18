@@ -86,8 +86,11 @@ class Stock:
         self.OpenValue = self.stockTimeData[10]
         # 当日外盘
         self.outer_plat = self.stockTimeData[14]
+        self.outer_plat = round(float(self.outer_plat.replace("万", "")), 2)
+
         # 当日内盘
         self.inner_plat = self.stockTimeData[15]
+        self.inner_plat = round(float(self.inner_plat.replace("万", "")), 2)
 
         # 历史资金流入流出情况
         self.in_out_flow = datas[2]

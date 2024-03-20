@@ -106,7 +106,7 @@ class Stock:
         self.in_out_flow = datas[2]
 
         # N内筹码集中度
-        # 筹码集中度=成本区间的（高值-低值）/（高值+低值）
+        # 90筹码集中度
         self.Chipsconcentrations = datas[3]
         # 股票代码
         self.StockNum = datas[4]

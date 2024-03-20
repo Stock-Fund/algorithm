@@ -4,6 +4,7 @@ import algorithm.ma_logic as ma
 import algorithm.predict_logic as predict
 import algorithm.box_logic as box
 import algorithm.volum_logic as volum
+import algorithm.chips_logic as chips
 import talib as ta
 import pandas as pd
 
@@ -107,11 +108,17 @@ class Stock:
 
         # N内筹码集中度
         # 90筹码集中度
-        self.Chipsconcentrations = datas[3]
+        self.Chips90concentrations = datas[3]
+        # 90筹码成本 eg:“10_20”
+        self.Chips90Prices = datas[4]
+        # 筹码获利比例
+        self.Profitratios = datas[5]
+        # 筹码均价
+        self.ChipAveragePrices = datas[6]
         # 股票代码
-        self.StockNum = datas[4]
+        self.StockNum = datas[7]
         # 股票名字
-        self.Name = datas[5]
+        self.Name = datas[8]
 
         # 止盈卖出系数
         self.TakeProfit = 1.1
@@ -251,6 +258,15 @@ class Stock:
             return self.checkReversalVolums()
         else:
             return False
+
+    # =============== 筹码判断逻辑
+    # 判断股票的90%筹码聚散程度
+    def check90ChipGatheringsituation(self):
+        return chips.check90Chip(self)
+
+    # 判断股票的90%筹码价格的高低
+    def check90ChipPriceHighOrLow(self):
+        return chips.check90ChipPriceHighOrLow(self)
 
     # =============== 获取某个时间段内的macd数据
     """
@@ -484,12 +500,12 @@ class Stock:
         self.AveragePrices = value
 
     @property
-    def get_Chipsconcentrations(self):
-        return self.Chipsconcentrations
+    def get_Chips90concentrations(self):
+        return self.Chips90concentrations
 
-    @get_Chipsconcentrations.setter
-    def get_Chipsconcentrations(self, value):
-        self.Chipsconcentrations = value
+    @get_Chips90concentrations.setter
+    def get_Chips90concentrations(self, value):
+        self.Chips90concentrations = value
 
     @property
     def get_Name(self):

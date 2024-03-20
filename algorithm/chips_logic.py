@@ -1,13 +1,13 @@
-# 检查筹码分布情况  
+# 检查筹码分布情况
 # -2，-1 为筹码开始分散；
 # 0，1 为筹码无规律情况；
 # 2，3 为筹码开始聚集
 # 数字越小越要离场，数字越大需要关注
-def check90Chip(stock):
+def check90ChipGatheringsituation(stock):
     checkValue = 15  # 筹码判断基准
-    curValue = float(stock.Chipsconcentrations[-1].replace("%", ""))
-    preValue0 = float(stock.Chipsconcentrations[-2].replace("%", ""))
-    preValue1 = float(stock.Chipsconcentrations[-3].replace("%", ""))
+    curValue = float(stock.Chips90concentrations[-1].replace("%", ""))
+    preValue0 = float(stock.Chips90concentrations[-2].replace("%", ""))
+    preValue1 = float(stock.Chips90concentrations[-3].replace("%", ""))
     # 筹码集中度变大，筹码开始分散
     if curValue > preValue0 or curValue > preValue1:
         if curValue > checkValue:
@@ -25,6 +25,30 @@ def check90Chip(stock):
             return 0
         else:
             return 1
+
+
+def check90ChipPriceHighOrLow(stock):
+    chips90price_range = stock.Chips90Prices[-1]
+    chips90prices = chips90price_range.split("_")
+    minPrice = float(chips90prices[0])
+    maxPrice = float(chips90prices[1])
+    curPrice = float(stock.CurrentValue)
+    if curPrice >= minPrice and curPrice <= maxPrice:
+        return 0
+    elif curPrice < minPrice:
+        print("处于价格低位")
+        return -1
+    elif curPrice > maxPrice:
+        print("处于价格高位")
+        return 1
+    
+# def checkChip(stock):
+#     curProfitRatio = float(stock.ProfitRatios[-1])
+#     curPrice = float(stock.CurrentValue)
+#     curChipAveragePrice = float(stock.ChipAveragePrices[-1])
+#         # 当前价格大于筹码平均价格，股价处于平均点之上
+#     if curPrice > curChipAveragePrice:
+#         return True
 
 
 # # import pandas as pd

@@ -383,15 +383,14 @@ class Stock:
             return True
 
     # 获取某个时间点超买，超卖状态
-    # -1 表示超买 ； 1 表示超卖 ； 0 表示在震荡区间内
+    # -1 表示超卖 ； 1 表示超买 ； 0 表示在震荡区间内
     def get_over_trade(self, day=20):
-        bias_offset = self.checkbias(day)
-        bias = ma.calculate_bias(self, day)
-        if abs(bias) > bias_offset:
-            if bias > 0:
-                return -1
-            else:
-                return 1
+        bias = self.checkbias(day)
+        # 5%以上表示超买，反之达到-5%以上表示超卖
+        if bias <= -0.05:
+            return -1
+        elif bias >= 0.05:
+            return 1
         else:
             return 0
 

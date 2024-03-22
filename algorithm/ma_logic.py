@@ -349,8 +349,8 @@ def calculate_distance_from_sma(price, sma):
 
 
 # N日乖离率计算
-# 在弱势市场环境下，当乖离率达到5以上表示超买，反之达到-5以上表示超卖
-# 在强势市场环境下，当乖离率达到10以上表示超买，反之达到-10以上表示超卖
+# 在弱势市场环境下，当乖离率达到5%以上表示超买，反之达到-5%以上表示超卖
+# 在强势市场环境下，当乖离率达到10%以上表示超买，反之达到-10%以上表示超卖
 # 一般以20日均线为基准，较为准确
 def calculate_bias(stock, day=20):
     close = stock.CloseValues[-1]
@@ -366,6 +366,7 @@ def calculate_bias(stock, day=20):
         sma = stock.MA40[-1]
     elif day == 60:
         sma = stock.MA60[-1]
+    # 返回负数表示收盘价低于均线，当收盘价低于均线一定数值表示超卖
     bias = (close - sma) / sma * 100
     name = stock.Name
     print(f"{name}的{day}日乖离率为:{bias}")

@@ -131,6 +131,49 @@ class Stock:
         ma.calculateMouthMA(self)
         ma.calculateVolumesMA(self)
 
+    # ==================== 上下影线逻辑
+    # 判断N日内股价在一定幅度内震动，且出现多个上影线，主力可能存在试盘操作
+    def multiple_upper_shadows_when_daily_fluctuation_stable(
+        close_prices,
+        high_prices,
+        open_prices,
+        n_days=5,  # 一般默认为5天，短期侧罗
+        percent_threshold=5,  # 默认5%的幅度
+        shadows_needed=3,
+    ):
+        # 首先判断N日内每日收盘价与前一天收盘价的浮动幅度是否小于5%
+        for i in range(1, n_days):
+            if (
+                abs((close_prices[i] - close_prices[i - 1]) / close_prices[i - 1])
+                > percent_threshold / 100
+            ):
+                return False  # 如果某日收盘价与前一天收盘价的浮动幅度超过阈值则直接返回False
+
+        # 然后计算在价格稳定的情况下，n日内的上影线数量
+        upper_shadows = 0
+        for i in range(n_days):
+            upper_shadow = high_prices[i] - max(open_prices[i], close_prices[i])
+            if upper_shadow > 0.01:
+                upper_shadows += 1
+
+        # 如果上影线的数量达到要求,则返回True，否则返回False
+        if upper_shadows >= shadows_needed:
+            return True
+        else:
+            return False
+
+    # 判断是否有下影线
+    def has_lower_shadow(open_price, close_price, low_price):
+        # 如果收盘价大于等于开盘价（阳线），则下影线为开盘价减最低价
+        # 如果收盘价小于开盘价（阴线），则下影线为收盘价减最低价
+        lower_shadow = min(open_price, close_price) - low_price
+
+        # 确定是否有下影线，这里我们可以定一个阈值，如0.01，防止价格差过小误判为有影线
+        if lower_shadow > 0.01:
+            return True  # 如果有下影线，返回True
+        else:
+            return False  # 如果没有下影线，返回False
+
     # ===================== 均线逻辑
     def getMA(self, day):
         if day == 5:

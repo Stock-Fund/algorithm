@@ -67,6 +67,9 @@ class Stock:
         self.mouth_close_prices_array = np.array(self.MouthClose, dtype=np.double)
 
         self.close_prices_array = np.array(self.CloseValues, dtype=np.double)
+        self.open_prices_array = np.array(self.OpenValues, dtype=np.double)
+        self.high_prices_array = np.array(self.MaxValues, dtype=np.double)
+        self.low_prices_array = np.array(self.MinValues, dtype=np.double)
 
         self.Time = datas[0]  # 10点之前打到预测ma5直接买，下午就缓缓
 
@@ -134,9 +137,7 @@ class Stock:
     # ==================== 上下影线逻辑
     # 判断N日内股价在一定幅度内震动，且出现多个上影线，主力可能存在试盘操作
     def multiple_upper_shadows_when_daily_fluctuation_stable(
-        close_prices,
-        high_prices,
-        open_prices,
+        self,
         n_days=5,  # 一般默认为5天，短期侧罗
         percent_threshold=5,  # 默认5%的幅度
         shadows_needed=3,
@@ -144,7 +145,10 @@ class Stock:
         # 首先判断N日内每日收盘价与前一天收盘价的浮动幅度是否小于5%
         for i in range(1, n_days):
             if (
-                abs((close_prices[i] - close_prices[i - 1]) / close_prices[i - 1])
+                abs(
+                    (self.close_prices_array[i] - self.close_prices_array[i - 1])
+                    / self.close_prices_array[i - 1]
+                )
                 > percent_threshold / 100
             ):
                 return False  # 如果某日收盘价与前一天收盘价的浮动幅度超过阈值则直接返回False
@@ -152,7 +156,9 @@ class Stock:
         # 然后计算在价格稳定的情况下，n日内的上影线数量
         upper_shadows = 0
         for i in range(n_days):
-            upper_shadow = high_prices[i] - max(open_prices[i], close_prices[i])
+            upper_shadow = self.high_prices_array[i] - max(
+                self.open_prices_array[i], self.close_prices_array[i]
+            )
             if upper_shadow > 0.01:
                 upper_shadows += 1
 
@@ -163,10 +169,13 @@ class Stock:
             return False
 
     # 判断是否有下影线
-    def has_lower_shadow(open_price, close_price, low_price):
+    def has_lower_shadow(self):
         # 如果收盘价大于等于开盘价（阳线），则下影线为开盘价减最低价
         # 如果收盘价小于开盘价（阴线），则下影线为收盘价减最低价
-        lower_shadow = min(open_price, close_price) - low_price
+        lower_shadow = (
+            min(self.open_prices_array[-1], self.close_prices_array[-1])
+            - self.low_prices_array[-1]
+        )
 
         # 确定是否有下影线，这里我们可以定一个阈值，如0.01，防止价格差过小误判为有影线
         if lower_shadow > 0.01:

@@ -140,14 +140,19 @@ class Stock:
         self,
         n_days=5,  # 一般默认为5天，短期侧罗
         percent_threshold=5,  # 默认5%的幅度
+        upper_Offset=0.1,  # 判断上影线为默认10%的幅度的差距
         shadows_needed=3,
     ):
         # 首先判断N日内每日收盘价与前一天收盘价的浮动幅度是否小于5%
+        # 反转数据
+        reverse_close_prices_array = self.close_prices_array[::-1]
+        reverse_high_prices_array = self.high_prices_array[::-1]
+        reverse_open_prices_array = self.open_prices_array[::-1]
         for i in range(1, n_days):
             if (
                 abs(
-                    (self.close_prices_array[i] - self.close_prices_array[i - 1])
-                    / self.close_prices_array[i - 1]
+                    (reverse_close_prices_array[i] - reverse_close_prices_array[i - 1])
+                    / reverse_close_prices_array[i - 1]
                 )
                 > percent_threshold / 100
             ):
@@ -156,10 +161,10 @@ class Stock:
         # 然后计算在价格稳定的情况下，n日内的上影线数量
         upper_shadows = 0
         for i in range(n_days):
-            upper_shadow = self.high_prices_array[i] - max(
-                self.open_prices_array[i], self.close_prices_array[i]
+            upper_shadow = reverse_high_prices_array[i] - max(
+                reverse_open_prices_array[i], reverse_close_prices_array[i]
             )
-            if upper_shadow > 0.01:
+            if upper_shadow > upper_Offset:
                 upper_shadows += 1
 
         # 如果上影线的数量达到要求,则返回True，否则返回False

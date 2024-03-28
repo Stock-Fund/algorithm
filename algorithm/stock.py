@@ -554,12 +554,10 @@ class Stock:
         ].index
         print("底部缩量下跌和高位缩量上涨的日期有：")
         for day in divergence_days:
-            print(
-                f"日期：{self.dataFrame.index[day].strftime('%Y-%m-%d')},
-                价格：{self.dataFrame['Close'][day]},
-                成交量：{self.dataFrame['Volume'][day]}"
-            )
-    
+            closeValue = self.dataFrame["Close"][day]
+            volumeValue = self.dataFrame["Volume"][day]
+            print(f"日期：{day}，价格：{closeValue},成交量：{volumeValue}")
+
     # ================ stock属性
     @property
     def get_Date(self):

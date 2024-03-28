@@ -33,6 +33,11 @@ class Stock:
         # 股票数据记录时间范围
         self.Date = data.loc[0, "Date"]
 
+        # 收盘价变化量
+        self.ClosePrices_change = data.loc[0:, "Close"].diff()
+        # 成交量变化量
+        self.Volumes_change = data.loc[0:"Volume"].diff()
+
         # 将Date列转换为日期时间类型
         data["Date"] = pd.to_datetime(data["Date"])
         # 将Date列设置为索引
@@ -70,7 +75,7 @@ class Stock:
         self.open_prices_array = np.array(self.OpenValues, dtype=np.double)
         self.high_prices_array = np.array(self.MaxValues, dtype=np.double)
         self.low_prices_array = np.array(self.MinValues, dtype=np.double)
-
+        self.volumes_array = np.array(self.Volumes, dtype=np.double)
         self.Time = datas[0]  # 10点之前打到预测ma5直接买，下午就缓缓
 
         self.stockTimeData = datas[1]
@@ -511,6 +516,50 @@ class Stock:
         df["j"] = 3 * df["k"] - 2 * df["d"]
         return df
 
+    # ================ 量价背离判断
+    def checkValueVolumeReversal(self):
+        # 收盘价变化量
+        self.dataFrame["ClosePrices_change"] = self.dataFrame["Close"].diff()
+
+        # 成交量变化量
+        self.dataFrame["Volumes_change"] = self.dataFrame["Volume"].diff()
+
+        # 找到价格创新低但交易量没有放大的点
+        self.dataFrame["Divergence1"] = np.where(
+            (self.dataFrame["ClosePrices_change"] < 0)
+            & (self.dataFrame["Volumes_change"] < 0),
+            "True",
+            "False",
+        )
+
+        # 找到成交量创新低而价格没有跟着下跌的点
+        self.dataFrame["Divergence2"] = np.where(
+            (self.dataFrame["ClosePrices_change"] > 0)
+            & (self.dataFrame["Volumes_change"] < 0),
+            "True",
+            "False",
+        )
+
+        # 将两种底背离的情况合并
+        self.dataFrame["Divergence"] = np.where(
+            (self.dataFrame["Divergence1"] == "True")
+            | (self.dataFrame["Divergence2"] == "True"),
+            "True",
+            "False",
+        )
+
+        # 找出底部缩量下跌的日期
+        divergence_days = self.dataFrame.loc[
+            self.dataFrame["Divergence"] == "True"
+        ].index
+        print("底部缩量下跌和高位缩量上涨的日期有：")
+        for day in divergence_days:
+            print(
+                f"日期：{self.dataFrame.index[day].strftime('%Y-%m-%d')},
+                价格：{self.dataFrame['Close'][day]},
+                成交量：{self.dataFrame['Volume'][day]}"
+            )
+    
     # ================ stock属性
     @property
     def get_Date(self):

@@ -524,7 +524,7 @@ class Stock:
         # 成交量变化量
         self.dataFrame["Volumes_change"] = self.dataFrame["Volume"].diff()
 
-        # 找到价格创新低但交易量没有放大的点
+        # 找到价格创新低但交易量没有放大的点 价跌量缩
         self.dataFrame["Divergence1"] = np.where(
             (self.dataFrame["ClosePrices_change"] < 0)
             & (self.dataFrame["Volumes_change"] < 0),
@@ -532,7 +532,7 @@ class Stock:
             "False",
         )
 
-        # 找到成交量创新低而价格没有跟着下跌的点
+        # 找到成交量创新低而价格没有跟着下跌的点 价涨量缩
         self.dataFrame["Divergence2"] = np.where(
             (self.dataFrame["ClosePrices_change"] > 0)
             & (self.dataFrame["Volumes_change"] < 0),

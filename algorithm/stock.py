@@ -392,6 +392,49 @@ class Stock:
             daily_ranges.append((current_range_start, len(macd_hist) - 1))
         return daily_ranges
 
+    # 获取macd顶，底背离
+    def get_MACD_divergenc(self, fastperiod=12, slowperiod=26, signalperiod=9):
+        # ===== 找到MACD峰值
+        df = self.dataFrame
+        hist = ta.MACD(df["Close"], fastperiod, slowperiod, signalperiod)
+        df["MACD_Hist"] = hist
+        max_tab = np.zeros(hist.shape[0])
+        min_tab = np.zeros(hist.shape[0])
+        peaks_max = np.greater_equal(hist, np.roll(hist, 1)) & np.greater_equal(
+            hist, np.roll(hist, -1)
+        )
+        valleys_min = np.less_equal(hist, np.roll(hist, 1)) & np.less_equal(
+            hist, np.roll(hist, -1)
+        )
+        max_tab[peaks_max] = hist[peaks_max]
+        min_tab[valleys_min] = hist[valleys_min]
+        df_max = pd.DataFrame(max_tab, index=hist.index, columns=["MACD_Peaks"])
+        df_min = pd.DataFrame(min_tab, index=hist.index, columns=["MACD_Valleys"])
+        df["MACD_Peaks"] = df_max
+        df["MACD_Valleys"] = df_min
+        # ===== 找到MACD的顶部与底部背离
+        divergence = np.where(
+            (
+                (df["MACD_Peaks"].shift() > df["MACD_Peaks"])
+                & (df["Close"].shift() < df["Close"])
+            )
+            | (
+                (df["MACD_Valleys"].shift() < df["MACD_Valleys"])
+                & (df["Close"].shift() > df["Close"])
+            ),
+            "True",
+            "False",
+        )
+
+        df["MACD_Divergence"] = divergence
+        # 找出MACD背离的日期
+        divergence_days = df.loc[df["MACD_Divergence"] == "True"].index
+        print("MACD背离的日期有：")
+        for day in divergence_days:
+            closeValue = df["Close"][day]
+            volumeValue = df["Volume"][day]
+            print(f"日期：{day}，收盘价：{closeValue}, 成交量：{volumeValue}")
+
     # 成交量复合判断逻辑
     def get_final_result(self, time):
         # 斜率为正表示MA趋势向上
@@ -556,7 +599,10 @@ class Stock:
         for day in divergence_days:
             closeValue = self.dataFrame["Close"][day]
             volumeValue = self.dataFrame["Volume"][day]
-            print(f"日期：{day}，价格：{closeValue},成交量：{volumeValue}")
+            print(
+                f"日期：{day}，价格：{closeValue},成交量：{volumeValue}"
+                # f"日期：{self.dataFrame.index[day].strftime('%Y-%m-%d')},价格：{self.dataFrame['Close'][day]},成交量：{self.dataFrame['Volume'][day]}"
+            )
 
     # ================ stock属性
     @property

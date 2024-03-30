@@ -28,6 +28,7 @@ class Stock:
         self.MinValues = data.loc[0:, "Low"].tolist()
         # N日内成交量
         self.Volumes = data.loc[0:, "Volume"].tolist()
+        print(f"{self.Volumes}")
         # N日内不复权收盘价
         self.adjCloses = data.loc[0:, "Adj Close"].tolist()
         # 股票数据记录时间范围
@@ -37,7 +38,6 @@ class Stock:
         self.ClosePrices_change = data.loc[0:, "Close"].diff()
         # 成交量变化量
         self.Volumes_change = data.loc[0:"Volume"].diff()
-
         # 将Date列转换为日期时间类型
         data["Date"] = pd.to_datetime(data["Date"])
         # 将Date列设置为索引
@@ -396,7 +396,21 @@ class Stock:
     def get_MACD_divergenc(self, fastperiod=12, slowperiod=26, signalperiod=9):
         # ===== 找到MACD峰值
         df = self.dataFrame
-        hist = ta.MACD(df["Close"], fastperiod, slowperiod, signalperiod)
+        macd, signal, hist = np.nan_to_num(
+            ta.MACD(
+                self.close_prices_array,
+                fastperiod,
+                slowperiod,
+                signalperiod,
+            ),
+            nan=0,
+        )
+        # 计算需要补充的长度差
+        diff_len = len(self.dataFrame) - len(hist)
+        if diff_len > 0:
+            # 添加`diff_len`个零到`hist`的前面
+            hist = np.pad(hist, (diff_len, 0), "constant", constant_values=0)
+        # 现在可以将hist添加到self.dataFrame中
         df["MACD_Hist"] = hist
         max_tab = np.zeros(hist.shape[0])
         min_tab = np.zeros(hist.shape[0])
@@ -408,8 +422,8 @@ class Stock:
         )
         max_tab[peaks_max] = hist[peaks_max]
         min_tab[valleys_min] = hist[valleys_min]
-        df_max = pd.DataFrame(max_tab, index=hist.index, columns=["MACD_Peaks"])
-        df_min = pd.DataFrame(min_tab, index=hist.index, columns=["MACD_Valleys"])
+        df_max = pd.DataFrame(max_tab, index=df.index, columns=["MACD_Peaks"])
+        df_min = pd.DataFrame(min_tab, index=df.index, columns=["MACD_Valleys"])
         df["MACD_Peaks"] = df_max
         df["MACD_Valleys"] = df_min
         # ===== 找到MACD的顶部与底部背离

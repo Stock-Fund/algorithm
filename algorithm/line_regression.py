@@ -7,13 +7,35 @@ from sklearn import metrics
 import pandas as pd
 import numpy as np
 
-# 假设我们有一个数据集 df，包含特征X和目标值y
-# df = pd.read_csv('your_dataset.csv')
-# X = df['feature_column'].values.reshape(-1,1)
-# y = df['target_column'].values.reshape(-1,1)
-# 以下用随机生成数据进行演示
-# X = np.random.rand(100, 1)
-# y = 2 + 3 * X + np.random.rand(100, 1)
+
+# 获取线性回归模型,得到后续N天的预测值
+def Get_LinePrediction(df,day = 30):
+   # 使用 'Close' 列作为预测的目标值
+   df['Prediction'] = df[['Close']].shift(-day)
+   # 创建独立变量数据集（X）
+   X = np.array(df.drop(['Prediction'],1))
+   # 除去最后day行数据
+   X = X[:-day]
+   # 创建目标数据集 (y)
+   y = np.array(df['Prediction'])
+   # 除去最后day行数据
+   y = y[:-day]
+   # 分割数据为80%训练集和20%测试集
+   x_train, x_test, y_train, y_test = train_test_split(X, y, test_size=0.2)
+
+   # 创建并训练模型
+   lr = LinearRegression()
+   lr.fit(x_train, y_train)
+
+   # 测试模型：计算和打印误差
+   y_train_pred = lr.predict(x_train)
+   y_test_pred = lr.predict(x_test)
+
+   print(f'Train error: {metrics.mean_squared_error(y_train, y_train_pred)}')
+   print(f'Test error: {metrics.mean_squared_error(y_test, y_test_pred)}')
+   
+   return y_train_pred, y_test_pred
+   
 
 def linear_regression(feature, target):
    # 划分训练集和测试集
@@ -35,7 +57,7 @@ def polyfit(feature,target):
     coefficients = np.polyfit(feature.flatten(), target.flatten(), 1)
     # 生成线性回归模型
     model = np.poly1d(coefficients)
-    # 在X上进行预测
+    # 在X上进行预测 
     y_pred = model(feature)
     
     return model,y_pred

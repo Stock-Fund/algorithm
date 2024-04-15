@@ -5,6 +5,7 @@ import algorithm.predict_logic as predict
 import algorithm.box_logic as box
 import algorithm.volum_logic as volum
 import algorithm.chips_logic as chips
+import algorithm.line_regression as line_regression
 import talib as ta
 import pandas as pd
 
@@ -617,6 +618,11 @@ class Stock:
                 f"日期：{day}，价格：{closeValue},成交量：{volumeValue}"
                 # f"日期：{self.dataFrame.index[day].strftime('%Y-%m-%d')},价格：{self.dataFrame['Close'][day]},成交量：{self.dataFrame['Volume'][day]}"
             )
+    # ================ 预测值
+    def Get_Prediction_Value(self):
+        # 获取预测值
+        return line_regression.Get_LinePrediction(self.dataFrame)
+
 
     # ================ stock属性
     @property

@@ -129,3 +129,27 @@ def check_volum_logic(stock):
             # 内外盘都比较小 股价小幅上涨 代表庄家锁筹随时准备拉升
             return 2
     return 0
+
+# ======= debug
+def determine_entry_exit(df):
+    """
+    判断主力进场和出场的函数
+    df 是一个包含 'Open', 'Close', 'Volume' 等列的 DataFrame
+    """
+
+    # 计算涨跌幅
+    df['Change'] = (df['Close'] - df['Open']) / df['Open']
+
+    # 计算量的变化
+    df['Volume_Change'] = df['Volume'].pct_change()
+
+    # 初始化进出场标志
+    df['Entry_Flag'], df['Exit_Flag'] = 0, 0
+
+    # 如果当天涨幅超过2%且成交量增加超过10%，则认为主力可能进场
+    df.loc[(df['Change'] > 0.02) & (df['Volume_Change'] > 0.1), 'Entry_Flag'] = 1
+
+    # 如果当天跌幅超过2%且成交量增加超过10%，则认为主力可能出场
+    df.loc[(df['Change'] < -0.02) & (df['Volume_Change'] > 0.1), 'Exit_Flag'] = 1
+
+    return df

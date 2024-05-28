@@ -289,6 +289,10 @@ class Stock:
     # 是否超过平均量 ===> 放量
     def checkReversalVolums(self):
         return volum.checkVolumeIncreaseOrShrink(self)
+    
+    # 判断是否存在主力进场逻辑
+    def checkDetermineEntryExit(self):
+        return volum.determine_entry_exit(self.dataFrame)
 
     # 是否超过前一天的量能 ===> 反包
     def checkVolumClimaxReversal(self):
